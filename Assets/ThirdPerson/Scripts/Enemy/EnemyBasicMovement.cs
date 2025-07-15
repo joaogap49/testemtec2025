@@ -27,7 +27,7 @@ public class EnemyBasicMovement : MonoBehaviour
 
     public float updateSpeed = 0.1f; // usada nos IEnumerator: Funcoes que podem ser pausadas ou retomadas quando quisermos.
     private WaitForSeconds wait; // variavel para dizer o tempo até pausar, ou o tempo até retomar a função, ou até parar ela de vez, etc.
-    public Player player;
+    public PlayerThird player;
 
     private GameObject zona; // Essa zona é um gameobject dentro do player com um collider chamado "zona". Nos pegamos esse collider para dizer: Se eu estiver dentro dessa zona (se eu vi o player), eu diminuo a velocidade para ele poder fugir. 
                              //Se eu estiver com ele a vista, e eu não estou na zona, vou correr mais para ele não fugir. 
@@ -45,7 +45,7 @@ public class EnemyBasicMovement : MonoBehaviour
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerThird>();
         zona = GameObject.FindGameObjectWithTag("Zona");
         anim = GetComponentInChildren<Animator>(); //o animator não esta no objeto que ESTE script esta, mas sim no filho dele.
         wait = new WaitForSeconds(updateSpeed);
