@@ -15,6 +15,9 @@ public class PlayerThird : MonoBehaviour
     public float moveSpeed = 6f; // Velocidade normal de movimento.
     public float SprintSpeed = 12f; // Velocidade ao correr.
     float rotateSpeed; // Velocidade de rotação.
+    public int maxHealth = 100; // Vida máxima do personagem.
+    public int currentHealth; // Vida atual do personagem.
+    public PlayerHealth healthBar; // Referência à barra de vida do personagem.
 
     public bool cubeIsGrounded = true; // Indica se o cubo (personagem) está no chão.
 
@@ -23,6 +26,10 @@ public class PlayerThird : MonoBehaviour
     // Inicialização das referências.
     private void Start()
     {
+        currentHealth = maxHealth; // Define a vida atual como a máxima.
+        healthBar.SetMaxHealth(maxHealth); // Atualiza a barra de vida com o valor máximo.
+
+        // Configuração inicial do Animator.
         rb = GetComponent<Rigidbody>();
         stamina = FindObjectOfType<Stamina>(); // Busca o componente Stamina na cena.
     }
@@ -87,4 +94,23 @@ public class PlayerThird : MonoBehaviour
     }
 
     // Observação: A lógica de movimentação foi adaptada de Transform para Rigidbody para melhor integração com a física do Unity.
+
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+        healthBar.SetHealth(currentHealth);
+        Debug.Log("tomei dano:" + damage + "pontos de vida.");
+        if (currentHealth < 0)
+        {
+            Die();
+        }
+
+    }
+
+    // Update is called once per frame
+    void Die()
+    {
+        Debug.Log("morte morrida");
+    }
+
 }

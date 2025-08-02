@@ -1,31 +1,32 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
     int maxHealth = 100;
     private int currentHealth;
-    // Start is called before the first frame update
-    void Awake()
+    
+    public Slider slider;
+    public Gradient gradient;
+    public Image fill;
+
+    public void SetMaxHealth(int health)
     {
-        currentHealth = maxHealth;
+        slider.maxValue = health;
+        slider.value = health;
+
+        fill.color = gradient.Evaluate(1f);
     }
 
-    public void TakeDamage(int damage)
+    public void SetHealth(int health)
     {
-        currentHealth -= damage;
-        Debug.Log("tomei dano:" + damage + "pontos de vida.");
-        if(currentHealth < 0)
-        {
-            Die();
-        }
+        
+        slider.value = health;
 
+        fill.color = gradient.Evaluate(slider.normalizedValue);
     }
 
-    // Update is called once per frame
-    void Die()
-    {
-        Debug.Log("morte morrida");
-    }
+   
 }
