@@ -2,69 +2,86 @@
 using System.Collections.Generic;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
+using UnityEngine.AI;
 
 // Script responsável pelo ataque do inimigo ao jogador.
-public class EnemyAttack : MonoBehaviour
+public class EnemyAttack : MonoBehaviour, IHitable
 {
-    // Distância máxima para atacar o jogador.
+
     float attackRange = 2f;
 
-    // Tempo mínimo entre ataques consecutivos.
+    EnemyHealth enemyHealth;
+
+    public bool isKnockBack;
+
+
     float attackCooldown = 0.5f;
 
-    // Dano causado ao jogador por ataque.
+
     public int attackDamage;
 
-    // Tempo de preparação antes do ataque (delay para sincronizar com animação).
+ 
     float windAttackUp = 0.3f;
 
-    // Indica se o inimigo está atualmente atacando.
+   
     public bool isAttacking;
 
-    // Referência ao transform do jogador.
+
     private Transform player;
 
-    // Referência ao Animator do inimigo.
     private Animator anim;
 
-    // Armazena o tempo do último ataque para controlar o cooldown.
+   
     private float lastAttackTime = -999f;
 
-    // Ponto de origem do ataque (pode ser usado para efeitos ou checagem de colisão).
+   
     public Transform attackPoint;
 
-    // Índice da camada de animação de ataque.
+
     private int attackLayerIndex;
 
-    // Referência ao script de movimento do inimigo.
     private EnemyBasicMovement movement;
 
-    // Inicialização das referências.
+    public Rigidbody rb;
+
+    
     void Awake()
     {
-        // Busca o jogador pela tag "Player" e pega seu transform.
+        
         player = GameObject.FindGameObjectWithTag("Player").transform;
-        // Busca o Animator no filho do inimigo.
+        
         anim = GetComponentInChildren<Animator>();
-        // Busca o script de movimento do inimigo.
+        
         movement = GetComponent<EnemyBasicMovement>();
-        // Pega o índice da camada de animação chamada "AttackLayer".
+        
         attackLayerIndex = anim.GetLayerIndex("AttackLayer");
+
+        rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
+            rb.constraints = RigidbodyConstraints.FreezeRotation;
+        }
+
+
+        enemyHealth = GetComponent<EnemyHealth>();
     }
 
-    // Atualização a cada frame.
+    
     void Update()
     {
-        // Só ataca se o inimigo estiver perseguindo o jogador.
+        if (isKnockBack) return;
+        
         if (movement.currentState != EnemyBasicMovement.EnemyState.Chase)
             return;
 
-        // Calcula a distância até o jogador.
+        
         float distance = Vector3.Distance(transform.position, player.position);
-        // Verifica se está na animação de ataque.
+        
         bool isInAttackAnim = anim.GetCurrentAnimatorStateInfo(0).IsName("attack");
 
-        // Se o jogador está ao alcance, não está atacando e o cooldown passou, inicia o ataque.
+        
         if (distance <= attackRange && !isAttacking && Time.time >= lastAttackTime + attackCooldown)
         {
             StartCoroutine(PerformAttack());
@@ -72,64 +89,74 @@ public class EnemyAttack : MonoBehaviour
         }
     }
 
-    // Coroutine que executa o ataque do inimigo.
+    
     IEnumerator PerformAttack()
     {
-        isAttacking = true;
 
-        // Faz a transição suave para a camada de ataque na animação.
-        StartCoroutine(SmoothLayerTransition(1.0f, 0.1f));
-        // Dispara o trigger de ataque na animação.
-        anim.SetTrigger("attack");
-
-        // Aguarda o tempo de preparação do ataque (sincroniza com a animação).
-        yield return new WaitForSeconds(windAttackUp);
-
-        // Calcula a posição do ataque à frente do inimigo.
-        Vector3 attackPosition = transform.position + transform.forward * 1.5f;
-        // Detecta todos os colliders ao redor do ponto de ataque.
-        Collider[] hits = Physics.OverlapSphere(attackPosition, attackRange);
-
-        Debug.Log("Colisores detectados: " + hits.Length);
-
-        // Verifica se algum dos colliders é o jogador.
-        foreach (var hit in hits)
+        if (enemyHealth.currentHealth > 0)
         {
-            if (hit.CompareTag("Player"))
+            isAttacking = true;
+            movement.StopMovement();
+            
+            StartCoroutine(SmoothLayerTransition(1.0f, 0.1f));
+            
+            anim.SetTrigger("attack");
+            anim.SetInteger("state", 3);
+            
+            yield return new WaitForSeconds(windAttackUp);
+
+            
+            Vector3 attackPosition = transform.position + transform.forward * 1.5f;
+            
+            Collider[] hits = Physics.OverlapSphere(attackPosition, attackRange);
+
+            Debug.Log("Colisores detectados: " + hits.Length);
+
+            
+            foreach (var hit in hits)
             {
-                Debug.Log("Acertou o jogador!");
-                // Busca o script de vida do jogador e aplica dano.
-                PlayerThird health = hit.GetComponent<PlayerThird>();
-                if (health != null)
+                if (hit.CompareTag("Player"))
                 {
-                    health.TakeDamage(attackDamage);
+
+                    Debug.Log("Acertou o jogador!");
+                    // Busca o script de vida do jogador e aplica dano.
+                    PlayerThird health = hit.GetComponent<PlayerThird>();
+                    if (health != null)
+                    {
+                        health.TakeDamage(attackDamage);
+
+
+                    }
+                    break; 
                 }
-                break; // Só ataca uma vez por ciclo.
             }
+
+            
+            float attackDuration = 1 - windAttackUp;
+            yield return new WaitForSeconds(attackDuration);
+
+            
+            yield return StartCoroutine(SmoothLayerTransition(0f, 0.2f));
+            //anim.SetInteger("state", 4);
+            isAttacking = false;
+            movement.ResumeMovement();
         }
 
-        // Aguarda o restante da duração da animação de ataque.
-        float attackDuration = GetAttackDuration() - windAttackUp;
-        yield return new WaitForSeconds(attackDuration);
-
-        // Faz a transição suave para sair da camada de ataque.
-        yield return StartCoroutine(SmoothLayerTransition(0f, 0.2f));
-        isAttacking = false;
     }
 
-    // Controla o IK (Inverse Kinematics) da mão do inimigo durante o ataque.
+    
     void OnAnimatorIK(int layerIndex)
     {
-        // Só aplica IK se estiver na camada de ataque e o peso da camada for suficiente.
+        
         if (layerIndex == attackLayerIndex && anim.GetLayerWeight(attackLayerIndex) > 0.5f)
         {
-            // Move a mão direita do inimigo em direção ao jogador (para animação mais realista).
+            
             anim.SetIKPosition(AvatarIKGoal.RightHand, player.position + Vector3.up * 1.5f);
             anim.SetIKPositionWeight(AvatarIKGoal.RightHand, 0.8f);
         }
     }
 
-    // Faz a transição suave do peso da camada de animação de ataque.
+    
     IEnumerator SmoothLayerTransition(float targetWeight, float duration)
     {
         float startWeight = anim.GetLayerWeight(attackLayerIndex);
@@ -146,7 +173,7 @@ public class EnemyAttack : MonoBehaviour
         anim.SetLayerWeight(attackLayerIndex, targetWeight);
     }
 
-    // Retorna a duração da animação de ataque ("Cross Punch").
+    
     float GetAttackDuration()
     {
         AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
@@ -157,7 +184,73 @@ public class EnemyAttack : MonoBehaviour
                 return clip.length;
             }
         }
-        // Valor padrão caso não encontre a animação.
+        
         return 1f;
+    }
+
+    public void Execute(Transform knockbackSource, bool isPlayerAttack)
+    {
+        if (isPlayerAttack)
+            GetKnockback(knockbackSource);
+        Debug.Log("Gaaay");
+    }
+    public void GetKnockback(Transform knockbackSource)
+    {
+        if (isKnockBack) return;
+        isKnockBack = true;
+
+        if (movement.agent != null)
+        {
+            movement.agent.isStopped = true;
+            movement.agent.enabled = false;
+        }
+
+        Vector3 direction = (transform.position - knockbackSource.position).normalized;
+        direction.y = 0.3f;
+        float forceMultiplier = 10f; 
+        rb.AddForce(direction * forceMultiplier, ForceMode.Impulse);
+        StartCoroutine(KnockbackEffect());
+        StartCoroutine(EnableAgentAfterKnockBack());
+    }
+
+    IEnumerator KnockbackEffect()
+    {
+        var originalColor = GetComponentInChildren<Renderer>().material.color;
+        GetComponentInChildren<Renderer>().material.color = Color.red;
+        yield return new WaitForSeconds(0.5f);
+        GetComponentInChildren<Renderer>().material.color = originalColor;
+    }
+
+    IEnumerator EnableAgentAfterKnockBack()
+    {
+        yield return new WaitUntil(() => rb.velocity.magnitude < 1f);
+        yield return new WaitForSeconds(0.2f);
+
+        if (movement.agent != null)
+        {
+            
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+
+            
+            if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 2.0f, NavMesh.AllAreas))
+            {
+                movement.agent.Warp(hit.position);
+            }
+            else if (NavMesh.FindClosestEdge(transform.position, out hit, NavMesh.AllAreas))
+            {
+                movement.agent.Warp(hit.position);
+            }
+            else
+            {
+                movement.agent.Warp(transform.position);
+            }
+
+            
+            movement.agent.enabled = true;
+            movement.agent.isStopped = false;
+        }
+
+        isKnockBack = false;
     }
 }

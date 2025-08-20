@@ -31,7 +31,7 @@ public class EnemyBasicMovement : MonoBehaviour
 
     private GameObject zona; // Essa zona é um gameobject dentro do player com um collider chamado "zona". Nos pegamos esse collider para dizer: Se eu estiver dentro dessa zona (se eu vi o player), eu diminuo a velocidade para ele poder fugir. 
                              //Se eu estiver com ele a vista, e eu não estou na zona, vou correr mais para ele não fugir. 
-    private NavMeshAgent agent; // auto explicativo
+    public NavMeshAgent agent; // auto explicativo
     private Animator anim; // auto explicativo
 
     private float viewRadius = 10f; //o quao longe o inimigo enxerga (imagina um circulo, que o inimigo é o ponto central. O raio é o que conseguimos enxergar. 
@@ -88,6 +88,11 @@ public class EnemyBasicMovement : MonoBehaviour
 
     void Update()
     {
+        if(enemyAttack.isKnockBack)
+        {
+            return;
+        }
+        
         float distanceToPlayer = Vector3.Distance(transform.position, target.position);
 
         if (EnemyCanSeePlayer()) //Se eu conseguir ver o player, playerInSight é verdade, e então eu vou persegui-lo. Como estou perseguindo no update, a ultima posição do player é igual a posição dele, e a atualização funciona.
@@ -153,17 +158,26 @@ public class EnemyBasicMovement : MonoBehaviour
 
     void Chase()
     {
+        if(enemyAttack.isKnockBack)
+        {
+            return;
+        }
+        
         agent.SetDestination(target.position); //Pegamos o player.
         
         if (IsPlayerInZona())
         {
-            agent.speed = player.moveSpeed + 2f;
+            agent.speed = player.moveSpeed - 2f;
 
         }
         else
         {
-            agent.speed = player.SprintSpeed + 3f;
+            agent.speed = player.SprintSpeed - 3f;
 
+        }
+        if(enemyAttack.isAttacking)
+        {
+            agent.speed = 0f;
         }
     }
 
@@ -221,6 +235,22 @@ public class EnemyBasicMovement : MonoBehaviour
             }
         }
         return false;
+    }
+
+    public void StopMovement()
+    {
+        if(agent != null)
+        {
+            agent.isStopped = true;
+            
+        }
+    }
+    public void ResumeMovement()
+    {
+        if(agent != null && agent.enabled)
+        {
+            agent.isStopped = false;
+        }
     }
 }
 

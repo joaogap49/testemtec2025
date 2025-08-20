@@ -11,7 +11,9 @@ public class PlayerThird : MonoBehaviour
     private bool isGrounded; // Indica se o personagem está no chão.
     private bool isSprinting; // Indica se o personagem está correndo.
     private Rigidbody rb; // Referência ao Rigidbody para movimentação física.
-
+    Stun stun;
+    EnemyHealth enemyHealth;
+    public bool isStunned = false;
     public float moveSpeed = 6f; // Velocidade normal de movimento.
     public float SprintSpeed = 12f; // Velocidade ao correr.
     float rotateSpeed; // Velocidade de rotação.
@@ -26,6 +28,7 @@ public class PlayerThird : MonoBehaviour
     // Inicialização das referências.
     private void Start()
     {
+        stun = GetComponent<Stun>();
         currentHealth = maxHealth; // Define a vida atual como a máxima.
         healthBar.SetMaxHealth(maxHealth); // Atualiza a barra de vida com o valor máximo.
 
@@ -37,6 +40,45 @@ public class PlayerThird : MonoBehaviour
     // Atualização a cada frame para processar entrada e movimentação.
     private void Update()
     {
+        Movement();
+    }
+
+    // Detecta colisão com o chão para atualizar estados de pulo e aterrissagem.
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.name == "Floor")
+        {
+            cubeIsGrounded = true;
+            animator.SetBool("IsGrounded", true);
+            isGrounded = true;
+            animator.SetBool("IsJumping", false);
+            isJumping = false;
+        }
+    }
+
+    // Retorna se o personagem está correndo.
+    public bool IsSprinting()
+    {
+        return isSprinting;
+    }
+    // Retorna se o personagem está andando.
+    public bool IsWalking()
+    {
+        return isWalking;
+    }
+    public void SetStunned(bool value)
+    {
+        isStunned = value;
+    }
+
+    public void Movement()
+    {
+        if(isStunned)
+        {
+            stun.ApplyStun();
+            return;
+        }
+        
         Vector2 inputVector = new Vector2(0, 0);
 
         // Captura das teclas de movimento (WASD)
@@ -68,38 +110,15 @@ public class PlayerThird : MonoBehaviour
 
         isWalking = moveDir != Vector3.zero;
     }
-
-    // Detecta colisão com o chão para atualizar estados de pulo e aterrissagem.
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.name == "Floor")
-        {
-            cubeIsGrounded = true;
-            animator.SetBool("IsGrounded", true);
-            isGrounded = true;
-            animator.SetBool("IsJumping", false);
-            isJumping = false;
-        }
-    }
-
-    // Retorna se o personagem está correndo.
-    public bool IsSprinting()
-    {
-        return isSprinting;
-    }
-    // Retorna se o personagem está andando.
-    public bool IsWalking()
-    {
-        return isWalking;
-    }
-
     // Observação: A lógica de movimentação foi adaptada de Transform para Rigidbody para melhor integração com a física do Unity.
-
+   
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
         healthBar.SetHealth(currentHealth);
+        
         Debug.Log("tomei dano:" + damage + "pontos de vida.");
+        stun.ApplyStun();
         if (currentHealth < 0)
         {
             Die();
