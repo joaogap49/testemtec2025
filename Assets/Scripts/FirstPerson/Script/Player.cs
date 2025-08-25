@@ -1,9 +1,9 @@
 using UnityEngine;
 
 // Namespace para organização dos scripts do projeto
-            namespace Runtime.Script
+  namespace Runtime.Script
 {
-    // Script principal do jogador, responsável por inicializar e atualizar os componentes de personagem e câmera
+
     public class Player : MonoBehaviour
     {
         // Referência ao script que controla o personagem (movimentação, física, etc.)
@@ -70,5 +70,7 @@ using UnityEngine;
             // Atualiza a posição da câmera para seguir o alvo do personagem (normalmente a cabeça)
             playerCamera.UpdatePosition(playerCharacter.GetCameraTarget());
         }
+
+   
     }
 }

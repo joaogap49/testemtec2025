@@ -25,9 +25,9 @@ namespace Runtime.Script
         public CrouchInput Crouch;
     }
 
-    public class PlayerCharacter : MonoBehaviour, ICharacterController
+    public class PlayerCharacter : MonoBehaviour, ICharacterController, IShopCustomer
     {
-        
+
         [SerializeField] private KinematicCharacterMotor motor;
         [SerializeField] private Transform root;
         [SerializeField] private Transform cameraTarget;
@@ -47,21 +47,21 @@ namespace Runtime.Script
         [SerializeField] private float standCameraTargetHeight = 0.9f;
         [Range(0f, 1f)]
         [SerializeField] private float crouchCameraTargetHeight = 0.7f;
-        
+
         private Stance _stance;
-        
+
         private Quaternion _requestedRotation;
         private Vector3 _requestedMovement;
         private bool _requestedJump;
         private bool _requestedCrouch;
 
         private Collider[] _uncrouchOvelapResults;
-        
+
         public void Initialize()
         {
             _stance = Stance.Stand;
             _uncrouchOvelapResults = new Collider[8];
-            
+
             motor.CharacterController = this;
         }
 
@@ -74,7 +74,7 @@ namespace Runtime.Script
             _requestedMovement = Vector3.ClampMagnitude(_requestedMovement, 1f);
             // Orientar o 'input' para ser relativo à direção que o 'player' está a olhando.
             _requestedMovement = input.Rotation * _requestedMovement;
-        
+
             _requestedJump = _requestedJump || input.Jump;
             _requestedCrouch = input.Crouch switch
             {
@@ -96,7 +96,7 @@ namespace Runtime.Script
                   : crouchCameraTargetHeight
             );
             var rootTargetScale = new Vector3(1f, normalizedHeight, 1f);
-            
+
             cameraTarget.localPosition = Vector3.Lerp(
                 a: cameraTarget.localPosition,
                 b: new Vector3(0f, cameraTargetHeight, 0f),
@@ -108,27 +108,28 @@ namespace Runtime.Script
                 t: 1f - Mathf.Exp(-crouchHeightResponse * deltaTime)
             );
         }
-    
+
         public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             // Atualizar a rotação do personagem para a mesma direção da rotação requisitada (camera rotation).
-        
+
             // Não queremos que o personagem ande para cima ou para baixo (parecendo No Clip)
             // então a direção do personagem tem que ser sempre 'flat' ou "plana".
-        
+
             // Então projetaremos para que o vetor aponte sempre para a mesma direção que o "player" está a olhar
             // num chão plano.
-        
+
             var forward = Vector3.ProjectOnPlane
             (
                 _requestedRotation * Vector3.forward, motor.CharacterUp
             );
-        
-            if (forward != Vector3.zero){
+
+            if (forward != Vector3.zero)
+            {
                 currentRotation = Quaternion.LookRotation(forward, motor.CharacterUp);
             }
         }
-    
+
 
         public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
@@ -140,15 +141,15 @@ namespace Runtime.Script
                     direction: _requestedMovement,
                     surfaceNormal: motor.GroundingStatus.GroundNormal
                 ) * _requestedMovement.magnitude;
-                
+
                 // calcula a velocidade e resposta do movimento
                 // baseado na posição do personagem
                 var speed = _stance is Stance.Stand
                     ? walkSpeed
                     : crouchSpeed;
-                
+
                 var response = _stance is Stance.Stand
-                    ?walkResponse
+                    ? walkResponse
                     : crouchResponse;
 
                 var targetVelocity = groundedMovement * speed;
@@ -158,7 +159,7 @@ namespace Runtime.Script
                     t: 1f - Mathf.Exp(-response * deltaTime)
                 );
             }
-        
+
             // Senão, no ar...
             else
             {
@@ -168,10 +169,10 @@ namespace Runtime.Script
             if (_requestedJump)
             {
                 _requestedJump = false;
-            
+
                 // Tira o 'player' do chão.
                 motor.ForceUnground();
-            
+
                 // Define uma velocidade minima verticalmente para a velocidade do pulo.
                 var currentVerticalSpeed = Vector3.Dot(currentVelocity, motor.CharacterUp);
                 var targetVerticalSpeed = Mathf.Max(currentVerticalSpeed, jumpSpeed);
@@ -206,7 +207,7 @@ namespace Runtime.Script
             // Uncrouch
             if (!_requestedCrouch && _stance is not Stance.Stand)
             {
-                _stance = Stance.Stand; 
+                _stance = Stance.Stand;
                 motor.SetCapsuleDimensions
                 (
                     radius: motor.Capsule.radius,
@@ -226,7 +227,7 @@ namespace Runtime.Script
                         height: crouchHeight,
                         yOffset: crouchHeight * 0.5f
                     );
-                    
+
                 }
                 else
                 {
@@ -257,10 +258,22 @@ namespace Runtime.Script
 
         public void OnDiscreteCollisionDetected(Collider hitCollider)
         {
-        
+
         }
-    
+
         public Transform GetCameraTarget() => cameraTarget;
-    
+
+        public int GetXPAmount()
+        {
+            // Implementar lógica para obter a quantidade de XP do jogador
+            return 100; // Exemplo fixo, substituir pela lógica real
+        }
+
+        public void BoughtItem(Upgrades.UpgradeType upgradeType)
+        {
+            Debug.Log($"Player bought upgrade: {upgradeType}");
+        }
+
+        
     }
 }
