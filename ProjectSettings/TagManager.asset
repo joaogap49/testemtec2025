@@ -8,6 +8,8 @@ TagManager:
   - Character
   - Enemy
   - CanvaLockOn
+  - spawn
+  - enemyRenderer
   layers:
   - Default
   - TransparentFX

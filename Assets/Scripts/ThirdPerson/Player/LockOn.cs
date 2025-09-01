@@ -4,76 +4,123 @@ using UnityEngine;
 
 public class LockOn : MonoBehaviour
 {
+    [Header("LockOn Settings")]
     public float lockOnRange = 10f;
-    public Transform currentTarget;
-    public LayerMask enemyLayer;
-    public EnemyHealth health;
-    public LockOnUI lockOnUI;
+    public LayerMask enemyLayer; // selecione a layer dos inimigos no Inspector
+    public KeyCode toggleKey = KeyCode.Tab;
+
+    [Header("Refs (optional)")]
+    public LockOnUI lockOnUI; // seu UI handler se tiver
+
+    // runtime
+    public Transform currentTarget { get; private set; }
+    private Transform previousTarget;
 
     private void Start()
     {
-        health = GetComponent<EnemyHealth>();   
-        if(lockOnUI == null)
-        {
+        if (lockOnUI == null)
             lockOnUI = FindObjectOfType<LockOnUI>();
-        }
     }
 
-
-    void Update()
+    private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab)) // tecla para travar/destravar
+        if (Input.GetKeyDown(toggleKey))
         {
             if (currentTarget == null)
-                LockOnTarget();
+                TryLockOn();
             else
-            {
-                if(lockOnUI != null)     
-                lockOnUI.DisableTarget();
-                currentTarget = null;
-            }
-
+                UnlockCurrent();
         }
-    }
 
-    void LockOnTarget()
-    {
-        Collider[] hits = Physics.OverlapSphere(transform.position, lockOnRange, enemyLayer);
-
-        if (hits.Length > 0)
+        // se o target for destruído/removido, limpa
+        if (currentTarget != null && (currentTarget.gameObject == null || !currentTarget.gameObject.activeInHierarchy))
         {
-            // pega o mais próximo
-            Transform closest = hits[0].transform;
-            float closestDist = Vector3.Distance(transform.position, closest.position);
-
-            foreach (Collider c in hits)
-            {
-                float dist = Vector3.Distance(transform.position, c.transform.position);
-                if (dist < closestDist)
-                {
-                    closest = c.transform;
-                    closestDist = dist;
-                    
-                }
-            }
-
-            currentTarget = closest;
-            if(lockOnUI != null)
-            lockOnUI.SetTarget(currentTarget);
+            UnlockCurrent();
         }
     }
 
-    void LateUpdate()
+    private void TryLockOn()
+    {
+        Collider[] hits;
+        if (enemyLayer.value == 0)
+            hits = Physics.OverlapSphere(transform.position, lockOnRange);
+        else
+            hits = Physics.OverlapSphere(transform.position, lockOnRange, enemyLayer);
+
+        if (hits == null || hits.Length == 0) return;
+
+        Transform closest = null;
+        float closestDist2 = float.MaxValue;
+
+        foreach (var c in hits)
+        {
+            // tenta encontrar o componente EnemyHealth no pai do collider
+            EnemyHealth eh = c.GetComponentInParent<EnemyHealth>();
+            if (eh == null) continue; // ignora colliders que não pertencem a inimigos
+
+            Transform candidate = eh.transform;
+
+            float d2 = (candidate.position - transform.position).sqrMagnitude;
+            if (d2 < closestDist2)
+            {
+                closestDist2 = d2;
+                closest = candidate;
+            }
+        }
+
+        if (closest != null)
+        {
+            // garante que desliga o antigo target visual
+            if (currentTarget != null)
+                SetTargetLocked(currentTarget, false);
+
+            previousTarget = currentTarget;
+            currentTarget = closest;
+
+            SetTargetLocked(currentTarget, true);
+
+            if (lockOnUI != null)
+                lockOnUI.SetTarget(currentTarget);
+        }
+    }
+
+    private void UnlockCurrent()
+    {
+        if (currentTarget == null) return;
+
+        SetTargetLocked(currentTarget, false);
+
+        if (lockOnUI != null)
+            lockOnUI.DisableTarget();
+
+        previousTarget = currentTarget;
+        currentTarget = null;
+    }
+
+    // helper: chama o método no EnemyLockVisual do inimigo (se existir)
+    private void SetTargetLocked(Transform targetRoot, bool locked)
+    {
+        if (targetRoot == null) return;
+        EnemyLockVisual vis = targetRoot.GetComponent<EnemyLockVisual>();
+        if (vis != null)
+        {
+            vis.SetLocked(locked);
+        }
+        else
+        {
+            // fallback: tenta encontrar em children caso componente não esteja no root
+            vis = targetRoot.GetComponentInChildren<EnemyLockVisual>();
+            if (vis != null) vis.SetLocked(locked);
+        }
+    }
+
+    private void LateUpdate()
     {
         if (currentTarget != null)
         {
             Vector3 lookDir = currentTarget.position - transform.position;
-            lookDir.y = 0; // não inclina no eixo Y
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                Quaternion.LookRotation(lookDir),
-                Time.deltaTime * 10f // velocidade de rotação
-            );
+            lookDir.y = 0;
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(lookDir), Time.deltaTime * 10f);
         }
     }
 }

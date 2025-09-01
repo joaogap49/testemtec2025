@@ -179,12 +179,12 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 6
-    m_ConditionEvent: state
-    m_EventTreshold: 5
   - m_ConditionMode: 1
     m_ConditionEvent: attacked
     m_EventTreshold: 0
+  - m_ConditionMode: 6
+    m_ConditionEvent: attackReceiver
+    m_EventTreshold: 2
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 8947402157154676923}
   m_Solo: 0
@@ -415,6 +415,12 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 0}
+  - m_Name: attackReceiver
+    m_Type: 3
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 0}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Base Layer
@@ -463,7 +469,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -203655887218126122, guid: b8b540d93798fa547b283c67d6f76321,
+  m_Motion: {fileID: -203655887218126122, guid: a996fbf6e7ab3c54790a3016500f382e,
     type: 3}
   m_Tag: 
   m_SpeedParameter: 
@@ -611,6 +617,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 1
     m_ConditionEvent: attacked
     m_EventTreshold: 6
+  - m_ConditionMode: 6
+    m_ConditionEvent: attackReceiver
+    m_EventTreshold: 1
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -3561902929352941014}
   m_Solo: 0

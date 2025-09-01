@@ -44,10 +44,16 @@ public class EnemyBasicMovement : MonoBehaviour
 
     void Awake()
     {
+        
         agent = GetComponent<NavMeshAgent>();
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerThird>();
+        player = GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerThird>();
+        if (player != null)
+        {
+            target = player.transform; // <- garante que target não será null
+        }
+
         zona = GameObject.FindGameObjectWithTag("Zona");
-        anim = GetComponentInChildren<Animator>(); //o animator não esta no objeto que ESTE script esta, mas sim no filho dele.
+        anim = GetComponentInChildren<Animator>();
         wait = new WaitForSeconds(updateSpeed);
     }
 
@@ -62,9 +68,6 @@ public class EnemyBasicMovement : MonoBehaviour
         {
             switch (currentState) //Escolha caso. Se eu estiver com o caso Patrol, eu chamo a função Patrol. E assim por diante.
             {
-                case EnemyState.Patrol:
-                    Patrol();
-                    break;
                 case EnemyState.Chase:
                     if(!enemyAttack.isAttacking)
                     {
@@ -72,9 +75,9 @@ public class EnemyBasicMovement : MonoBehaviour
                     }
                     Chase();
                     break;
-                case EnemyState.Searching:
-                    Search();
-                    break;
+                //case EnemyState.Searching:
+                    //Search();
+                    //break;
             }
             yield return wait;
         }
@@ -104,56 +107,7 @@ public class EnemyBasicMovement : MonoBehaviour
             lastSeenPosition = target.position;
             hasReachedLastPosition = false; //Nao at  ingi porque supomos que ainda estou perseguindo ele.
         }
-        else if (playerInSight) //CASO EnemyCanSeePlayer retornar FALSO, eu venho para cá. Mais ainda: Se player insight por FALSO, eu vou passar a usar o contador, pois, aqui já perdemos o player de vista... 
-                                //mas não desistimos ainda.
-        {
-            timerSinceLost += Time.deltaTime;
-            if (timerSinceLost > lostTargetTime) //lostTargetTime é o tempo que o inimigo busca o player mesmo depois de perder ele de vista (ele ainda sabe aonde estamos).
-                                                 //Se o contador for maior que esse tempo, entao o inimigo deixou de saber aonde estamos. Mas ainda busca a ultima vez que ele viu nós. Melhor dizendo, a ulima posição do player antes do contador
-                                                 //acabar.
-            {
-                playerInSight = false;
-
-                float dist = Vector3.Distance(player.transform.position, lastSeenPosition); //Se a distancia que estamos da IA de verdade for pequena, entao a IA tem uma determinação a mais e ainda busca a gente.
-                                                                                            //Na vida real seria tipo: "Nao vejo ele, mas ainda escuto-o.". Em outras palavras, poderia ser um cooldown que a gente dá para a IA.
-                if (dist < 3f)
-                {
-                    currentState = EnemyState.Searching;
-                    
-                    hasReachedLastPosition = false;
-                    agent.SetDestination(lastSeenPosition);
-                    anim.SetInteger("state", 4);
-
-                }
-                else
-                {
-                    currentState = EnemyState.Patrol; //A IA sabe que estamos longe, e então vai embora.
-                    
-                }
-
-            }
-        }
-    }
-
-    void Patrol()
-    {
-        if (patrolPoints.Length == 0) return; //Se o tamanho for zero, nao executa nada.
-
-        agent.speed = player.moveSpeed - 3f; //Nesse caso o inimigo tem a nossa velocidade.
-
-        if (!enemyAttack.isAttacking)
-        {
-            anim.SetInteger("state", 3);
-        }
-
-
-        if (!agent.pathPending && agent.remainingDistance < 0.5f) //agent.pathPending nos diz se ainda estamos calculando o caminho até o nosso destino. Se isso tá falso, então significa que chegamos no destino.
-                                                                  //Aqui usamos o agent.remainingDistance pra dizer que nós já "chegamos" se estivermos a menos que 0.5f de distancia do destino.
-        {
-            patrolIndex = (patrolIndex + 1) % patrolPoints.Length; //Isso aqui é bem interessante, mas confuso. Somamos o index quando queremos ir para o proximo. O resto de divisao é importante porque, o unico caso que o resto dá zero é se nao me engane
-                                                                   //quando estivermos no ultimo passo da patrulha. Ai a patrulha volta para o numero inicial novamente.
-            agent.SetDestination(patrolPoints[patrolIndex].position);
-        }
+        
     }
 
     void Chase()
@@ -172,7 +126,7 @@ public class EnemyBasicMovement : MonoBehaviour
         }
         else
         {
-            agent.speed = player.SprintSpeed - 3f;
+            agent.speed = player.SprintSpeed - 1f;
 
         }
         if(enemyAttack.isAttacking)
@@ -181,22 +135,7 @@ public class EnemyBasicMovement : MonoBehaviour
         }
     }
 
-    void Search()
-    {
-
-        agent.speed = player.moveSpeed;
-        anim.SetInteger("state", 4);
-
-        if (!hasReachedLastPosition) //Isso aqui é uma preucaução. Se nao atingimos ainda a posição, vamos calcular a distancia. Se a distancia for pequena, atingimos ela e iniciamos SearchAroundBeforePatrol. 
-        {
-            float distance = Vector3.Distance(transform.position, lastSeenPosition);
-            if (distance < 0.5f)
-            {
-                hasReachedLastPosition = true;
-                StartCoroutine(SearchAroundBeforePatrol());
-            }
-        }
-    }
+ 
 
     public bool IsPlayerInZona() //A esfera ao redor do inimigo vai pegar todos os colliders ao redor dele. Se tiver um collider com a tag zona, então o player ta na zona. E o metodo pode ser usado em outros cantos.
     {
