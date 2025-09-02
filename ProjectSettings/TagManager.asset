@@ -8,6 +8,7 @@ TagManager:
   - Character
   - Enemy
   - CanvaLockOn
+  - DropLootTracker
   layers:
   - Default
   - TransparentFX
