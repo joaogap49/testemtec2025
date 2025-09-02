@@ -1242,10 +1242,10 @@ MonoBehaviour:
   agent: {fileID: 0}
   playerMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
   obstructionMask:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 0
 --- !u!54 &1050693727244033589
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1285,11 +1285,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1abb88c59f56f834e9417b278b5165a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isKnockBack: 0
+  attackRange: 2
+  attackCooldown: 0.5
   attackDamage: 10
+  windAttackUp: 0.3
   isAttacking: 0
-  attackPoint: {fileID: 4589119587640046276}
-  rb: {fileID: 0}
+  isKnockBack: 0
 --- !u!114 &1972732012391650623
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1302,6 +1303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 767b0b3a9a12fb141a89b3d80d32ee27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 30
   currentHealth: 10
   enemyBasicMovement: {fileID: 0}
   enemyAttack: {fileID: 0}
