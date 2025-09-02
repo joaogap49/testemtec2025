@@ -14,8 +14,8 @@ public class PlayerThird : MonoBehaviour
     Stun stun;
     EnemyHealth enemyHealth;
     public bool isStunned = false;
-    public float moveSpeed = 6f; // Velocidade normal de movimento.
-    public float SprintSpeed = 12f; // Velocidade ao correr.
+    public float moveSpeed = 24f; // Velocidade normal de movimento.
+    public float SprintSpeed = 50f; // Velocidade ao correr.
     float rotateSpeed; // Velocidade de rotação.
     public int maxHealth = 100; // Vida máxima do personagem.
     public int currentHealth; // Vida atual do personagem.
@@ -26,21 +26,33 @@ public class PlayerThird : MonoBehaviour
     private Stamina stamina; // Referência ao script de stamina.
 
     // Inicialização das referências.
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+    }
+
     private void Start()
     {
-        stun = GetComponent<Stun>();
-        currentHealth = maxHealth; // Define a vida atual como a máxima.
-        healthBar.SetMaxHealth(maxHealth); // Atualiza a barra de vida com o valor máximo.
-
-        // Configuração inicial do Animator.
         rb = GetComponent<Rigidbody>();
-        stamina = FindObjectOfType<Stamina>(); // Busca o componente Stamina na cena.
+        stun = GetComponent<Stun>();
+        stamina = FindObjectOfType<Stamina>();
+
+        currentHealth = maxHealth;
+        if (healthBar != null)
+            healthBar.SetMaxHealth(maxHealth);
+
+        Debug.Log("Rigidbody inicializado no Awake: " + rb);
+
+
     }
 
     // Atualização a cada frame para processar entrada e movimentação.
-    private void Update()
+    private void FixedUpdate()
     {
         Movement();
+        
     }
 
     // Detecta colisão com o chão para atualizar estados de pulo e aterrissagem.
@@ -73,11 +85,7 @@ public class PlayerThird : MonoBehaviour
 
     public void Movement()
     {
-        if(isStunned)
-        {
-            stun.ApplyStun();
-            return;
-        }
+      
         
         Vector2 inputVector = new Vector2(0, 0);
 
@@ -100,6 +108,7 @@ public class PlayerThird : MonoBehaviour
         }
 
         rb.MovePosition(rb.position + moveDir * currentSpeed * Time.deltaTime);
+        
 
         if (moveDir != Vector3.zero)
         {
@@ -118,7 +127,7 @@ public class PlayerThird : MonoBehaviour
         healthBar.SetHealth(currentHealth);
         
         Debug.Log("tomei dano:" + damage + "pontos de vida.");
-        stun.ApplyStun();
+        //stun.ApplyStun();
         if (currentHealth < 0)
         {
             Die();
