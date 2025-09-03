@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -10,10 +11,13 @@ public class EnemyHealth : MonoBehaviour
     private Animator animator;
     public EnemyBasicMovement enemyBasicMovement;
     public EnemyAttack enemyAttack;
-
+    private CameraShake cam;
     public delegate void EnemyDeath(EnemyHealth enemy);
     public static event EnemyDeath OnEnemyDeath;
+    public delegate void OnEnemyAttack(float damage);
+    public static event OnEnemyAttack onEnemyAttack;
     public GameObject DropLootPrefab;
+    public HitStop hitStop;
 
     GameObject _dropLootTarget;
 
@@ -23,6 +27,8 @@ public class EnemyHealth : MonoBehaviour
         animator = GetComponentInChildren<Animator>();    
         enemyBasicMovement = GetComponentInChildren<EnemyBasicMovement>();
         _dropLootTarget = GameObject.FindGameObjectWithTag("DropLootTracker");
+        cam = FindObjectOfType<CameraShake>();
+        hitStop = FindObjectOfType<HitStop>();
     }
     private void Awake()
     {
@@ -35,6 +41,12 @@ public class EnemyHealth : MonoBehaviour
     {
         // Sempre que o inimigo for ativado (spawn novo ou respawn), vida é resetada
         currentHealth = maxHealth;
+        onEnemyAttack += TakeDamage;
+        enemyBasicMovement.currentState = EnemyBasicMovement.EnemyState.Chase;
+    }
+    private void OnDisable()
+    {
+        onEnemyAttack -= TakeDamage;
     }
 
     public void TakeDamage(float damage)
@@ -51,6 +63,8 @@ public class EnemyHealth : MonoBehaviour
         if (currentHealth <= 0)
         {
             Die();
+            //cam.Shake(2.0f, 3.0f, 0.3f);
+            hitStop.DoHitStop(.4f, 0.3f);
             OnEnemyDeath?.Invoke(this);
         }
     }
@@ -73,7 +87,7 @@ public class EnemyHealth : MonoBehaviour
         int lootToDrop = Mathf.Max(1, Mathf.RoundToInt(30f / 10f)); // 30f é a vida máxima
         for (int i = 0; i < lootToDrop; i++)
         {
-            var go = Instantiate(DropLootPrefab, transform.position + new Vector3(0, Random.Range(0, 2), 0), Quaternion.identity);
+            var go = Instantiate(DropLootPrefab, transform.position + new Vector3(0, Random.Range(0, 2), 0), Quaternion.identity);//
             go.GetComponent<Follow>().Target = _dropLootTarget.transform;
         }
 
