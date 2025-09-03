@@ -265,7 +265,6 @@ namespace Runtime.Script
 
         public Transform GetCameraTarget() => cameraTarget;
 
-        // --- XP SYSTEM INTEGRATION ---
         public void AddXP(int amount)
         {
             PlayerXPManager.Instance.AddXP(amount);
@@ -280,9 +279,6 @@ namespace Runtime.Script
         {
             return PlayerXPManager.Instance.XP;
         }
-        // --- END XP SYSTEM INTEGRATION ---
-
-
         public void BoughtItem(Upgrades.UpgradeType upgradeType)
         {
             int cost = Upgrades.GetCost(upgradeType);
