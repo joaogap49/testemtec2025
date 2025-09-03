@@ -22,7 +22,7 @@ public class PlayerAttack : MonoBehaviour
     // runtime
     private float lastAttackTime = -999f;
     private bool isAttacking = false;
-
+    public CameraShake cam;
     private void Awake()
     {
         if (anim == null)
@@ -34,6 +34,11 @@ public class PlayerAttack : MonoBehaviour
         {
             rb = GetComponent<Rigidbody>();
         }
+        if(cam == null)
+        {
+            cam = FindObjectOfType<CameraShake>();
+        }
+        
         
         attackLayerIndex = anim.GetLayerIndex("AttackLayer");
     }
@@ -51,7 +56,7 @@ public class PlayerAttack : MonoBehaviour
         {
 
                 StartCoroutine(PerformAttack());
-
+                
         }
     }
 
@@ -101,10 +106,12 @@ public class PlayerAttack : MonoBehaviour
             if (eh != null && !damaged.Contains(eh))
             {
                 damaged.Add(eh);
+                
                 IHitable hitable = hit.transform.GetComponent<IHitable>();
                 if (hitable != null && hit.transform != transform) // evita dar knockback em si mesmo
                 {
                     hitable.Execute(transform, true);
+                    cam.Shake(1.0f, 2.0f, 0.2f); 
                 }
                 eh.TakeDamage(attackDamage);
                 enemyBasicMovement.currentState = EnemyBasicMovement.EnemyState.Chase;
