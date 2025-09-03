@@ -10,6 +10,7 @@ TagManager:
   - spawn
   - enemyRenderer
   - DropLootTracker
+  - XP
   layers:
   - Default
   - TransparentFX

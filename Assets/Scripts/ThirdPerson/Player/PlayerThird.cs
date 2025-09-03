@@ -1,4 +1,4 @@
- using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -139,6 +139,21 @@ public class PlayerThird : MonoBehaviour
     void Die()
     {
         Debug.Log("morte morrida");
+    }
+
+    public void AddXP(int amount)
+    {
+        PlayerXPManager.Instance.AddXP(amount);
+    }
+
+    public bool TrySpendXP(int amount)
+    {
+        return PlayerXPManager.Instance.TrySpendXP(amount);
+    }
+
+    public int GetXPAmount()
+    {
+        return PlayerXPManager.Instance.XP;
     }
 
 }

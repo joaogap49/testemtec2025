@@ -57,6 +57,8 @@ namespace Runtime.Script
 
         private Collider[] _uncrouchOvelapResults;
 
+
+
         public void Initialize()
         {
             _stance = Stance.Stand;
@@ -263,17 +265,37 @@ namespace Runtime.Script
 
         public Transform GetCameraTarget() => cameraTarget;
 
+        // --- XP SYSTEM INTEGRATION ---
+        public void AddXP(int amount)
+        {
+            PlayerXPManager.Instance.AddXP(amount);
+        }
+
+        public bool TrySpendXP(int amount)
+        {
+            return PlayerXPManager.Instance.TrySpendXP(amount);
+        }
+
         public int GetXPAmount()
         {
-            // Implementar lógica para obter a quantidade de XP do jogador
-            return 100; // Exemplo fixo, substituir pela lógica real
+            return PlayerXPManager.Instance.XP;
         }
+        // --- END XP SYSTEM INTEGRATION ---
+
 
         public void BoughtItem(Upgrades.UpgradeType upgradeType)
         {
-            Debug.Log($"Player bought upgrade: {upgradeType}");
+            int cost = Upgrades.GetCost(upgradeType);
+            if (TrySpendXP(cost))
+            {
+                Debug.Log($"PlayerCharacter bought upgrade: {upgradeType}");
+                // Aqui você pode aplicar o efeito do upgrade
+            }
+            else
+            {
+                Debug.Log("XP insuficiente para comprar o upgrade!");
+            }
         }
 
-        
     }
 }

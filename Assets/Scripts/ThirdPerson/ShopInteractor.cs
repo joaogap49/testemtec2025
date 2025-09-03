@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement; // Adicionado para troca de cena
 
-public class DoorInteractable : MonoBehaviour, IInteractable
+public class ShopInteractor : MonoBehaviour, IInteractable
 {
     private Animator animator;
     private bool isOpen;
@@ -22,7 +22,7 @@ public class DoorInteractable : MonoBehaviour, IInteractable
     public void Interact()
     {
         ToggleDoor();
-        SceneManager.LoadScene("PHASE1"); // Troca para a cena PHASE 1
+        SceneManager.LoadScene("Shop");
     }
 
     public string GetInteractText()

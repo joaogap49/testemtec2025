@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using CodeMonkey.Utils;
 using System.Runtime.CompilerServices;
+using Runtime.Script;
 
 public class UI_Shop : MonoBehaviour
 {
@@ -48,7 +49,25 @@ public class UI_Shop : MonoBehaviour
     }
     private void TryBuyUpgrade(Upgrades.UpgradeType upgradeType)
     {
-        shopCustomer.BoughtItem(upgradeType);
+        if (shopCustomer != null)
+        {
+            int cost = Upgrades.GetCost(upgradeType);
+            if (shopCustomer is PlayerThird playerThir)
+            {
+                if (playerThir.GetXPAmount() >= cost)
+                {
+                    shopCustomer.BoughtItem(upgradeType);
+                }
+                else
+                {
+                    Debug.Log("XP insuficiente para comprar o upgrade!");
+                }
+            }
+            else
+            {
+                shopCustomer.BoughtItem(upgradeType);
+            }
+        }
     }
 
     public void Show(IShopCustomer shopCustomer)
