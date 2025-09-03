@@ -1372,10 +1372,10 @@ MonoBehaviour:
   agent: {fileID: 0}
   playerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   obstructionMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
 --- !u!54 &6154651447478239838
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1437,8 +1437,6 @@ MonoBehaviour:
   currentHealth: 30
   enemyBasicMovement: {fileID: 0}
   enemyAttack: {fileID: 0}
-  DropLootPrefab: {fileID: 4616575792214188741, guid: 8c884154d40518b40badbd404b97816f,
-    type: 3}
 --- !u!114 &5469481459779337636
 MonoBehaviour:
   m_ObjectHideFlags: 0

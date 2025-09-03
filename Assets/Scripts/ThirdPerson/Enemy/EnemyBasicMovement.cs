@@ -121,12 +121,12 @@ public class EnemyBasicMovement : MonoBehaviour
         
         if (IsPlayerInZona())
         {
-            agent.speed = player.moveSpeed + 2f;
+            agent.speed = player.moveSpeed - 2f;
 
         }
         else
         {
-            agent.speed = player.SprintSpeed + 1f;
+            agent.speed = player.SprintSpeed - 1f;
 
         }
         if(enemyAttack.isAttacking)
