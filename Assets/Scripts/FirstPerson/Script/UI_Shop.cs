@@ -57,6 +57,7 @@ public class UI_Shop : MonoBehaviour
                 if (playerThir.GetXPAmount() >= cost)
                 {
                     shopCustomer.BoughtItem(upgradeType);
+                    
                 }
                 else
                 {
