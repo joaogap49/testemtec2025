@@ -106,14 +106,14 @@ public class PlayerAttack : MonoBehaviour
             if (eh != null && !damaged.Contains(eh))
             {
                 damaged.Add(eh);
-                
                 IHitable hitable = hit.transform.GetComponent<IHitable>();
                 if (hitable != null && hit.transform != transform) // evita dar knockback em si mesmo
                 {
                     hitable.Execute(transform, true);
-                    cam.Shake(1.0f, 2.0f, 0.2f); 
+                    
                 }
                 eh.TakeDamage(attackDamage);
+                cam.Shake(1.0f, 2.0f, 0.2f);
                 enemyBasicMovement.currentState = EnemyBasicMovement.EnemyState.Chase;
                 
                 Debug.Log($"[PlayerAttack] Aplicou {attackDamage} de dano em '{eh.gameObject.name}'. HP agora = {eh.currentHealth}");

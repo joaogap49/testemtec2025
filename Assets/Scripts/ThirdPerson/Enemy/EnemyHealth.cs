@@ -54,7 +54,7 @@ public class EnemyHealth : MonoBehaviour
         if (currentHealth <= 0) return;
 
         currentHealth -= damage;
-
+        
         // Animação de reação
         int randomReaction = Random.Range(1, 3);
         animator.SetInteger("attackReceiver", randomReaction);
@@ -63,7 +63,7 @@ public class EnemyHealth : MonoBehaviour
         if (currentHealth <= 0)
         {
             Die();
-            //cam.Shake(2.0f, 3.0f, 0.3f);
+            
             hitStop.DoHitStop(.4f, 0.3f);
             OnEnemyDeath?.Invoke(this);
         }
