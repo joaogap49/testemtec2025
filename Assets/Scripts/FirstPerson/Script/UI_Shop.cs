@@ -12,6 +12,7 @@ public class UI_Shop : MonoBehaviour
     private Transform Container;
     private Transform ShopItemTemplate;
     private IShopCustomer shopCustomer;
+    
 
     private void Awake()
     {
@@ -56,11 +57,14 @@ public class UI_Shop : MonoBehaviour
             {
                 if (playerThir.GetXPAmount() >= cost)
                 {
+                    
                     shopCustomer.BoughtItem(upgradeType);
                     
+
                 }
                 else
                 {
+                    
                     Debug.Log("XP insuficiente para comprar o upgrade!");
                 }
             }

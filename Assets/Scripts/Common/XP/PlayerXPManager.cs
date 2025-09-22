@@ -18,6 +18,11 @@ public class PlayerXPManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    private void Start()
+    {
+        SetXP(300); // Defina o valor desejado para testar a loja
+    }
+
     public void AddXP(int amount)
     {
         XP += amount;

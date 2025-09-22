@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class ShopTriggerCollider : MonoBehaviour
 {
+    [SerializeField] private AudioSource openingAudio;
+    [SerializeField] private AudioSource closingAudio;
     [SerializeField] private UI_Shop uiShop;
     private void OnTriggerEnter(Collider collider)
     {
+        openingAudio.Play();
         Debug.Log("OnTriggerEnter: " + collider.name);
         IShopCustomer shopCustomer = collider.GetComponent<IShopCustomer>();
 
@@ -19,6 +22,7 @@ public class ShopTriggerCollider : MonoBehaviour
             
     private void OnTriggerExit(Collider collider)
     {
+        closingAudio.Play();
         IShopCustomer shopCustomer = collider.GetComponent<IShopCustomer>();
 
         if (shopCustomer != null)
