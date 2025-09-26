@@ -47,6 +47,8 @@ namespace Runtime.Script
         [SerializeField] private float standCameraTargetHeight = 0.9f;
         [Range(0f, 1f)]
         [SerializeField] private float crouchCameraTargetHeight = 0.7f;
+        [SerializeField] private AudioSource errorBuySound;
+        [SerializeField] private AudioSource buySound;
 
         private Stance _stance;
 
@@ -265,7 +267,6 @@ namespace Runtime.Script
 
         public Transform GetCameraTarget() => cameraTarget;
 
-        // --- XP SYSTEM INTEGRATION ---
         public void AddXP(int amount)
         {
             PlayerXPManager.Instance.AddXP(amount);
@@ -280,19 +281,18 @@ namespace Runtime.Script
         {
             return PlayerXPManager.Instance.XP;
         }
-        // --- END XP SYSTEM INTEGRATION ---
-
-
         public void BoughtItem(Upgrades.UpgradeType upgradeType)
         {
             int cost = Upgrades.GetCost(upgradeType);
             if (TrySpendXP(cost))
             {
+                buySound.Play();
                 Debug.Log($"PlayerCharacter bought upgrade: {upgradeType}");
                 // Aqui você pode aplicar o efeito do upgrade
             }
             else
             {
+                errorBuySound.Play();
                 Debug.Log("XP insuficiente para comprar o upgrade!");
             }
         }
