@@ -12,8 +12,12 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private float attackOffset = 1.5f; // onde a esfera é centrada à frente do jogador
     [SerializeField] private LayerMask enemyLayer = 0;  // selecione a layer dos inimigos (opcional)
     [SerializeField] private Rigidbody rb;
-    
-    
+    [SerializeField] private Stun stun;
+    private PlayerThird playerThird;
+    public Material slashMaterial;
+    public Material glowMaterial;
+    public float fadeSpeed = 2.0f;
+    private float fadeValue = 0.0f;
     private int attackLayerIndex;
 
     [Header("References")]
@@ -38,7 +42,14 @@ public class PlayerAttack : MonoBehaviour
         {
             cam = FindObjectOfType<CameraShake>();
         }
-        
+        if(stun == null)
+        {
+            stun = GetComponent<Stun>();
+        }
+        if(playerThird == null)
+        {
+            playerThird = GetComponent<PlayerThird>();
+        }
         
         attackLayerIndex = anim.GetLayerIndex("AttackLayer");
     }
@@ -58,6 +69,13 @@ public class PlayerAttack : MonoBehaviour
                 StartCoroutine(PerformAttack());
                 
         }
+        if(fadeValue > 0)
+        {
+            fadeValue -= Time.deltaTime * fadeSpeed;
+            fadeValue = Mathf.Clamp01(fadeValue);
+            slashMaterial.SetFloat("_slashFase", fadeValue);
+            glowMaterial.SetFloat("_slashFase", fadeValue);
+        }
     }
 
     private IEnumerator PerformAttack()
@@ -68,6 +86,7 @@ public class PlayerAttack : MonoBehaviour
         lastAttackTime = Time.time;
         StartCoroutine(SmoothLayerTransition(1.0f, 0.1f));
         anim.SetTrigger("attack");
+        FadeTrigger();
         anim.SetInteger("attackNumber", Random.Range(1, 3));// -> **verifique o nome exato do parâmetro no Animator**
         Debug.Log("[PlayerAttack] Trigger 'attack' set on Animator");
         
@@ -106,14 +125,18 @@ public class PlayerAttack : MonoBehaviour
             if (eh != null && !damaged.Contains(eh))
             {
                 damaged.Add(eh);
+                
                 IHitable hitable = hit.transform.GetComponent<IHitable>();
                 if (hitable != null && hit.transform != transform) // evita dar knockback em si mesmo
                 {
                     hitable.Execute(transform, true);
-                    
+                    //Vector3 knockBackDir = (transform.position - hit.transform.position).normalized;
+                    //playerThird.ApplyKnockBack(knockBackDir);
+
                 }
                 eh.TakeDamage(attackDamage);
-                cam.Shake(1.0f, 2.0f, 0.2f);
+                stun.ApplyStun();
+                //cam.Shake(1.0f, 2.0f, 0.2f);
                 enemyBasicMovement.currentState = EnemyBasicMovement.EnemyState.Chase;
                 
                 Debug.Log($"[PlayerAttack] Aplicou {attackDamage} de dano em '{eh.gameObject.name}'. HP agora = {eh.currentHealth}");
@@ -137,7 +160,12 @@ public class PlayerAttack : MonoBehaviour
         Vector3 center = transform.position + transform.forward * attackOffset;
         Gizmos.DrawWireSphere(center, attackDistance);
     }
-
+    private void FadeTrigger()
+    {
+        fadeValue = 1f;
+        slashMaterial.SetFloat("_slashFase", fadeValue);
+        glowMaterial.SetFloat("_slashFase", fadeValue);
+    }
     IEnumerator SmoothLayerTransition(float targetWeight, float duration)
     {
         float startWeight = anim.GetLayerWeight(attackLayerIndex);

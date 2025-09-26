@@ -11,6 +11,8 @@ TagManager:
   - enemyRenderer
   - DropLootTracker
   - XP
+  - Ground
+  - blood
   layers:
   - Default
   - TransparentFX

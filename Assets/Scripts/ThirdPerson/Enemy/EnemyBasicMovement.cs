@@ -91,10 +91,7 @@ public class EnemyBasicMovement : MonoBehaviour
 
     void Update()
     {
-        if(enemyAttack.isKnockBack)
-        {
-            return;
-        }
+        
         
         float distanceToPlayer = Vector3.Distance(transform.position, target.position);
 

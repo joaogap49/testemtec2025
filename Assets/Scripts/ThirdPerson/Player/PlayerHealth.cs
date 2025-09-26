@@ -7,6 +7,7 @@ public class PlayerHealth : MonoBehaviour
 {
     int maxHealth = 100;
     private int currentHealth;
+
     
     public Slider slider;
     public Gradient gradient;

@@ -74,10 +74,12 @@ public class EnemyAttack : MonoBehaviour, IHitable
         {
             if (hit.CompareTag("Player"))
             {
-                PlayerThird health = hit.GetComponent<PlayerThird>();
-                if (health != null)
+                
+                PlayerThird player = hit.GetComponent<PlayerThird>();
+                if (player != null)
                 {
-                    health.TakeDamage(attackDamage);
+                    Vector3 knockBackDir = (hit.transform.position - transform.position).normalized;
+                    player.TakeDamage(attackDamage);
                 }
                 break;
             }
@@ -123,7 +125,7 @@ public class EnemyAttack : MonoBehaviour, IHitable
         }
 
         Vector3 direction = (transform.position - knockbackSource.position).normalized;
-        direction.y = 0.3f;
+        direction.y = 0.0f;
         rb.AddForce(direction * 10f, ForceMode.Impulse);
 
         StartCoroutine(KnockbackEffect());

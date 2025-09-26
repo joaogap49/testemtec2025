@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VFX;
 
 // Script responsável pelo controle do personagem em terceira pessoa, incluindo movimentação, rotação e integração com o sistema de stamina.
 public class PlayerThird : MonoBehaviour
@@ -8,7 +9,7 @@ public class PlayerThird : MonoBehaviour
     [SerializeField] private Animator animator; // Referência ao Animator para controlar animações.
     private bool isWalking; // Indica se o personagem está andando.
     private bool isJumping; // Indica se o personagem está pulando.
-    private bool isGrounded; // Indica se o personagem está no chão.
+    [SerializeField] private bool isGrounded; // Indica se o personagem está no chão.
     private bool isSprinting; // Indica se o personagem está correndo.
     private Rigidbody rb; // Referência ao Rigidbody para movimentação física.
     Stun stun;
@@ -20,6 +21,12 @@ public class PlayerThird : MonoBehaviour
     public int maxHealth = 100; // Vida máxima do personagem.
     public int currentHealth; // Vida atual do personagem.
     public PlayerHealth healthBar; // Referência à barra de vida do personagem.
+    [Header("Blood Effect")]
+    public GameObject bloodPrefab;
+    public Transform bloodSpawnPoint;
+    public VisualEffect visualEffect;
+
+
 
     public bool cubeIsGrounded = true; // Indica se o cubo (personagem) está no chão.
 
@@ -31,6 +38,8 @@ public class PlayerThird : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
+        visualEffect = bloodPrefab.GetComponent<VisualEffect>();
+       
     }
 
     private void Start()
@@ -38,7 +47,10 @@ public class PlayerThird : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         stun = GetComponent<Stun>();
         stamina = FindObjectOfType<Stamina>();
-
+        if(bloodSpawnPoint == null)
+        {
+            bloodSpawnPoint = transform;
+        }
         currentHealth = maxHealth;
         if (healthBar != null)
             healthBar.SetMaxHealth(maxHealth);
@@ -52,21 +64,11 @@ public class PlayerThird : MonoBehaviour
     private void FixedUpdate()
     {
         Movement();
-        
+       
     }
 
     // Detecta colisão com o chão para atualizar estados de pulo e aterrissagem.
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.name == "Floor")
-        {
-            cubeIsGrounded = true;
-            animator.SetBool("IsGrounded", true);
-            isGrounded = true;
-            animator.SetBool("IsJumping", false);
-            isJumping = false;
-        }
-    }
+    
 
     // Retorna se o personagem está correndo.
     public bool IsSprinting()
@@ -85,7 +87,7 @@ public class PlayerThird : MonoBehaviour
 
     public void Movement()
     {
-      
+       
         
         Vector2 inputVector = new Vector2(0, 0);
 
@@ -125,12 +127,13 @@ public class PlayerThird : MonoBehaviour
     {
         currentHealth -= damage;
         healthBar.SetHealth(currentHealth);
-        
+        PlayBloodEffect();
         Debug.Log("tomei dano:" + damage + "pontos de vida.");
         //stun.ApplyStun();
         if (currentHealth < 0)
         {
             Die();
+             
         }
 
     }
@@ -155,5 +158,31 @@ public class PlayerThird : MonoBehaviour
     {
         return PlayerXPManager.Instance.XP;
     }
+    public void PlayBloodEffect()
+    {
+        if(bloodPrefab != null)
+        {
+            GameObject bloodInstance = Instantiate(bloodPrefab, bloodSpawnPoint.position, Quaternion.LookRotation(bloodPrefab.transform.forward));
+            visualEffect.Play();
+      
+            Destroy(bloodInstance, 3.0f);
+        }
+        
+    }
 
+    
+    private void OnCollisionEnter(Collision collision)
+    {
+        //if (collision.gameObject.name == "Floor")
+        //{
+            //cubeIsGrounded = true;
+            //animator.SetBool("IsGrounded", true);
+            //isGrounded = true;
+            //animator.SetBool("IsJumping", false);
+            //isJumping = false;
+        //}
+        
+    }
+    
+  
 }
