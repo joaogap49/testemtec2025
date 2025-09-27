@@ -13,6 +13,8 @@ TagManager:
   - XP
   - Ground
   - blood
+  - spawnObject
+  - Spawn
   layers:
   - Default
   - TransparentFX

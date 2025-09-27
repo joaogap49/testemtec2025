@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
+using static EnemyHealth;
 
 public class PlayerAttack : MonoBehaviour
 {
@@ -109,6 +111,7 @@ public class PlayerAttack : MonoBehaviour
         else
             hits = Physics.OverlapSphere(center, attackDistance);
 
+        
         Debug.Log($"[PlayerAttack] OverlapSphere encontrou {hits.Length} colliders.");
 
         // Evitar aplicar dano duplicado ao mesmo EnemyHealth (hashset)
@@ -116,37 +119,55 @@ public class PlayerAttack : MonoBehaviour
 
         foreach (var hit in hits)
         {
+            if (hit.transform == transform) continue;
+            bool isEnemy = hit.CompareTag("Enemy");
+            bool isSpawner = hit.CompareTag("Spawn");
             // tenta encontrar EnemyHealth no próprio collider, nos pais ou nos filhos
             EnemyHealth eh = hit.GetComponent<EnemyHealth>();
             EnemyBasicMovement enemyBasicMovement = hit.GetComponent<EnemyBasicMovement>();
             if (eh == null) eh = hit.GetComponentInParent<EnemyHealth>();
             if (eh == null) eh = hit.GetComponentInChildren<EnemyHealth>();
+            EnemyAttack enemyAttack = hit.GetComponent<EnemyAttack>();
             
-            if (eh != null && !damaged.Contains(eh))
+
+            if(isEnemy || isSpawner)
             {
-                damaged.Add(eh);
-                
-                IHitable hitable = hit.transform.GetComponent<IHitable>();
-                if (hitable != null && hit.transform != transform) // evita dar knockback em si mesmo
+                if (eh != null && !damaged.Contains(eh))
                 {
-                    hitable.Execute(transform, true);
-                    //Vector3 knockBackDir = (transform.position - hit.transform.position).normalized;
-                    //playerThird.ApplyKnockBack(knockBackDir);
+                    damaged.Add(eh);
 
+                    IHitable hitable = hit.transform.GetComponent<IHitable>();
+                    if (hitable != null && hit.transform != transform) // evita dar knockback em si mesmo
+                    {
+                        hitable.Execute(transform, true);
+                        //Vector3 knockBackDir = (transform.position - hit.transform.position).normalized;
+                        //playerThird.ApplyKnockBack(knockBackDir);
+
+                    }
+                    eh.TakeDamage(attackDamage);
+                    if (enemyAttack != null)
+                    {
+                        enemyAttack.ApplyStun(1f);
+                    }
+
+                    enemyBasicMovement.currentState = EnemyBasicMovement.EnemyState.Chase;
+
+                    Debug.Log($"[PlayerAttack] Aplicou {attackDamage} de dano em '{eh.gameObject.name}'. HP agora = {eh.currentHealth}");
                 }
-                eh.TakeDamage(attackDamage);
-                stun.ApplyStun();
-                //cam.Shake(1.0f, 2.0f, 0.2f);
-                enemyBasicMovement.currentState = EnemyBasicMovement.EnemyState.Chase;
-                
-                Debug.Log($"[PlayerAttack] Aplicou {attackDamage} de dano em '{eh.gameObject.name}'. HP agora = {eh.currentHealth}");
+                else if (eh == null)
+                {
+                    Debug.Log($"[PlayerAttack] Collider '{hit.name}' não possui EnemyHealth.");
+                }
+                SpawnerLife spawnerLife = hit.GetComponent<SpawnerLife>();
+               
+                if (spawnerLife != null)
+                {
+                    spawnerLife.Execute(transform, true);
+                }
             }
-            else if (eh == null)
-            {
-                Debug.Log($"[PlayerAttack] Collider '{hit.name}' não possui EnemyHealth.");
-            }
+            
         }
-
+        
         // Pequena folga (opcional)
         //yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length);
         //yield return null;

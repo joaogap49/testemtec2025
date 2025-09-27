@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.InputSystem.Android;
 
 [RequireComponent(typeof(NavMeshAgent))]
 //O require component faz o seguinte: Se por acaso eu esqueci de colocar algum componente, com esse Require o Unity adiciona automaticamente para mim. Nesse caso, o script exige NavMeshComponent, e se este nao existir, vai adicionar automaticamente.
@@ -91,7 +92,14 @@ public class EnemyBasicMovement : MonoBehaviour
 
     void Update()
     {
-        
+        if (enemyAttack.isKnockBack || enemyAttack.isStunned)
+        {
+            if(agent != null && agent.enabled)
+            {
+                agent.isStopped = true;
+            }
+            return;
+        }
         
         float distanceToPlayer = Vector3.Distance(transform.position, target.position);
 
@@ -109,11 +117,15 @@ public class EnemyBasicMovement : MonoBehaviour
 
     void Chase()
     {
-        if(enemyAttack.isKnockBack)
+        if (enemyAttack.isKnockBack || enemyAttack.isStunned)
         {
+            if (agent != null && agent.enabled)
+            {
+                agent.isStopped = true;
+            }
             return;
         }
-        
+
         agent.SetDestination(target.position); //Pegamos o player.
         
         if (IsPlayerInZona())

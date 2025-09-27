@@ -7,10 +7,13 @@ public class ShopInteractor : MonoBehaviour, IInteractable
 {
     private Animator animator;
     private bool isOpen;
-
+    private SpawnerLife spawnerLife;
+    private Spawner spawner;
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        spawnerLife = FindObjectOfType<SpawnerLife>();
+        spawner = FindObjectOfType<Spawner>();
     }
 
     public void ToggleDoor()
@@ -21,8 +24,12 @@ public class ShopInteractor : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        ToggleDoor();
-        SceneManager.LoadScene("Shop");
+        if(spawnerLife.hitlerIsDead && spawner.aliveEnemies == 0)
+        {
+            ToggleDoor();
+            SceneManager.LoadScene("Shop");
+        }
+        
     }
 
     public string GetInteractText()

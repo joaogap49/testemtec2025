@@ -8,23 +8,33 @@ public class Spawner : MonoBehaviour
     [SerializeField] private GameObject enemyPrefab;
     [SerializeField] private int maxEnemySpawned = 5;
 
-    private Transform[] spawners;
-    private int aliveEnemies = 0;
 
+    private Transform[] spawners;
+    public int aliveEnemies = 0;
+    private SpawnerLife spawnerLife;
     private void Awake()
     {
         spawners = GetComponentsInChildren<Transform>();
+        spawnerLife = GetComponentInParent<SpawnerLife>();
     }
 
     private void Start()
     {
         StartCoroutine(SpawnCoroutine());
     }
-
+    private void Update()
+    {
+        
+    }
     private IEnumerator SpawnCoroutine()
     {
+        
         while (true)
         {
+            if (spawnerLife.hitlerIsDead)
+            {
+                spawnIncidence = 0f;
+            }
             yield return new WaitForSeconds(timeBetweenSpawn / spawnIncidence);
 
             if (aliveEnemies < maxEnemySpawned)
@@ -35,6 +45,7 @@ public class Spawner : MonoBehaviour
                 GameObject newEnemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
                 aliveEnemies++;
             }
+            
         }
     }
 

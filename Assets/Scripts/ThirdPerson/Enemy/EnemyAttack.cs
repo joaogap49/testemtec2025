@@ -20,6 +20,9 @@ public class EnemyAttack : MonoBehaviour, IHitable
     private float lastAttackTime = -999f;
     private int attackLayerIndex;
 
+    public bool isStunned = false;
+    private float stunDuration = 0.5f;
+
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
@@ -40,7 +43,8 @@ public class EnemyAttack : MonoBehaviour, IHitable
 
     private void Update()
     {
-        if (isKnockBack || enemyHealth.currentHealth <= 0) return;
+        if (isKnockBack || isStunned || enemyHealth.currentHealth <= 0) return;
+       
 
         if (movement.currentState != EnemyBasicMovement.EnemyState.Chase) return;
 
@@ -159,5 +163,34 @@ public class EnemyAttack : MonoBehaviour, IHitable
         }
 
         isKnockBack = false;
+    }
+
+    public void ApplyStun(float duration)
+    {
+        if (isStunned) return;
+
+        isStunned = true;
+        stunDuration = duration;
+
+        
+        if (movement.agent != null && movement.agent.enabled)
+        {
+            movement.agent.isStopped = true;
+            movement.agent.ResetPath();
+        }
+
+        StartCoroutine(StunRoutine());
+    }
+    private IEnumerator StunRoutine()
+    {
+        yield return new WaitForSeconds(stunDuration);
+
+        isStunned = false;
+
+       
+        if (!isKnockBack && movement.agent != null && movement.agent.enabled)
+        {
+            movement.agent.isStopped = false;
+        }
     }
 }
