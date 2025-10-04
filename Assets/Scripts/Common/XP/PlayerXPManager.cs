@@ -20,7 +20,7 @@ public class PlayerXPManager : MonoBehaviour
 
     private void Start()
     {
-        SetXP(300); // Defina o valor desejado para testar a loja
+        SetXP(300); // Valor preestabelecido pra testar a loja
     }
 
     public void AddXP(int amount)
