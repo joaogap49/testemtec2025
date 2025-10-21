@@ -1421,6 +1421,7 @@ MonoBehaviour:
   windAttackUp: 0.3
   isAttacking: 0
   isKnockBack: 0
+  isStunned: 0
 --- !u!114 &5366009960546206850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1438,6 +1439,14 @@ MonoBehaviour:
   enemyBasicMovement: {fileID: 0}
   enemyAttack: {fileID: 0}
   DropLootPrefab: {fileID: 4616575792214188741, guid: 8c884154d40518b40badbd404b97816f,
+    type: 3}
+  hitStop: {fileID: 0}
+  xpPopUp: {fileID: 6747991322069775585, guid: 2ad00fb4ffbf3334a92af070f156e4b6, type: 3}
+  inGameCanvas: {fileID: 1931349334643073992, guid: 948132a272c39dd4987a714b09bd0fcd,
+    type: 3}
+  pointEffect: {fileID: 3624054070056919429, guid: ebd5e6a9da3e05e41948e63b9f8438e5,
+    type: 3}
+  xpCollection: {fileID: 3927195001522811742, guid: 62eee15227331db499e7a7f1bc8be610,
     type: 3}
 --- !u!114 &5469481459779337636
 MonoBehaviour:

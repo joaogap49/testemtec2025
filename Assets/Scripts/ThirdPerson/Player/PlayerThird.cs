@@ -9,6 +9,7 @@ public class PlayerThird : MonoBehaviour
     [SerializeField] private Animator animator; // Referência ao Animator para controlar animações.
     private bool isWalking; // Indica se o personagem está andando.
     private bool isJumping; // Indica se o personagem está pulando.
+    private bool isDamaged; // Indica se o personagem tomou dano.
     [SerializeField] private bool isGrounded; // Indica se o personagem está no chão.
     private bool isSprinting; // Indica se o personagem está correndo.
     private Rigidbody rb; // Referência ao Rigidbody para movimentação física.
@@ -25,6 +26,7 @@ public class PlayerThird : MonoBehaviour
     public GameObject bloodPrefab;
     public Transform bloodSpawnPoint;
     public VisualEffect visualEffect;
+    private PlayerAnimator playerAnimator;
 
 
 
@@ -54,7 +56,10 @@ public class PlayerThird : MonoBehaviour
         currentHealth = maxHealth;
         if (healthBar != null)
             healthBar.SetMaxHealth(maxHealth);
-
+        if(playerAnimator == null)
+        {
+            playerAnimator = GetComponent<PlayerAnimator>();
+        }
         Debug.Log("Rigidbody inicializado no Awake: " + rb);
 
 
@@ -79,6 +84,10 @@ public class PlayerThird : MonoBehaviour
     public bool IsWalking()
     {
         return isWalking;
+    }
+    public bool IsDamaged()
+    {
+        return isDamaged;
     }
     public void SetStunned(bool value)
     {
@@ -125,19 +134,27 @@ public class PlayerThird : MonoBehaviour
    
     public void TakeDamage(int damage)
     {
+        StartCoroutine(isDamagedCorroutine());
         currentHealth -= damage;
         healthBar.SetHealth(currentHealth);
         PlayBloodEffect();
         Debug.Log("tomei dano:" + damage + "pontos de vida.");
-        //stun.ApplyStun();
+        stun.ApplyStun();
         if (currentHealth < 0)
         {
             Die();
-             
-        }
-
+        }  
     }
-
+    private IEnumerator isDamagedCorroutine()
+    {
+        isDamaged = true;
+        StartCoroutine(playerAnimator.SmoothLayerTransition(1.0f, 0.1f));
+        yield return new WaitForSeconds(.24f);
+        isDamaged = false;
+        yield return null;
+        StartCoroutine(playerAnimator.SmoothLayerTransition(0f, 0.1f));
+    }
+    
     // Update is called once per frame
     void Die()
     {
@@ -184,5 +201,5 @@ public class PlayerThird : MonoBehaviour
         
     }
     
-  
+
 }

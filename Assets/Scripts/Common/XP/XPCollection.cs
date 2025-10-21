@@ -11,6 +11,7 @@ public class XPCollection : MonoBehaviour
         {
             Debug.Log("XP coletado: " + xpAmount);
             player.AddXP(xpAmount);
+
             Destroy(gameObject); // Destroi o coletável após pegar
         }
     }

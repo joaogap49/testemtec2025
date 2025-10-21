@@ -1,0 +1,211 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!319 &31900000
+AvatarMask:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: damageMask
+  m_Mask: 00000000010000000100000000000000000000000100000001000000010000000100000000000000000000000100000001000000
+  m_Elements:
+  - m_Path: 
+    m_Weight: 1
+  - m_Path: CORPAO.003
+    m_Weight: 1
+  - m_Path: ossos do corpo
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone/Bone.014
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone/Bone.014/Bone.015
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone/Bone.014/Bone.015/Bone.016
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.002
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.002/Bone.018
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.002/Bone.018/Bone.019
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.002/Bone.018/Bone.019/Bone.020
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.003
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.003/Bone.009
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.003/Bone.009/Bone.017
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.003/Bone.009/Bone.017/Bone.021
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.004
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.004/Bone.010
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.005
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.005/Bone.025
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.005/Bone.025/Bone.026
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.005/Bone.025/Bone.026/Bone.027
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.007
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.007/Bone.028
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.007/Bone.028/Bone.029
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.007/Bone.028/Bone.029/Bone.030
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.008
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.008/Bone.022
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.008/Bone.022/Bone.023
+    m_Weight: 1
+  - m_Path: ossos do corpo/Bone.008/Bone.022/Bone.023/Bone.024
+    m_Weight: 1
+  - m_Path: ossos do corpo/ik-braco_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/ik-braco_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/ik-perna_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/ik-perna_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/pano.1
+    m_Weight: 1
+  - m_Path: ossos do corpo/pano.1/Bone.011
+    m_Weight: 1
+  - m_Path: ossos do corpo/pano.1/Bone.011/Bone.012
+    m_Weight: 1
+  - m_Path: ossos do corpo/pano.1/Bone.011/Bone.012/Bone.013
+    m_Weight: 1
+  - m_Path: ossos do corpo/pole-cotuvelo_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/pole-cotuvelo_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/pole-joelho_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/pole-joelho_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/anelar1_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/anelar1_L.001/anelar2_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/anelar1_L.001/anelar2_L.001/anelar3_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/dedao1_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/dedao1_L.001/dedao2_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/dedao1_L.001/dedao2_L.001/dedao3_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/indicador1_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/indicador1_L.001/indicador2_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/indicador1_L.001/indicador2_L.001/indicador3_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/meio1_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/meio1_L.001/meio2_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/meio1_L.001/meio2_L.001/meio3_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/mindinho1_L.002
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/mindinho1_L.002/mindinho2_L.002
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_L.001/braco_L.001/antebraco_L.001/pulso-mao_L.001/mindinho1_L.002/mindinho2_L.002/mindinho3_L.002
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/anelar1_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/anelar1_R.001/anelar2_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/anelar1_R.001/anelar2_R.001/anelar3_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/dedao1_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/dedao1_R.001/dedao2_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/dedao1_R.001/dedao2_R.001/dedao3_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/indicador1_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/indicador1_R.001/indicador2_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/indicador1_R.001/indicador2_R.001/indicador3_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/meio1_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/meio1_R.001/meio2_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/meio1_R.001/meio2_R.001/meio3_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/mindinho1_R.002
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/mindinho1_R.002/mindinho2_R.002
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/ombro_R.001/braco_R.001/antebraco_R.001/pulso-mao_R.001/mindinho1_R.002/mindinho2_R.002/mindinho3_R.002
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/pescoco.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/pescoco.001/cabeca
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/pescoco.001/cabeca/eye_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/coluna2.001/coluna1.001/peito.001/pescoco.001/cabeca/eye_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/quadril.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/quadril.001/bacia_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/quadril.001/bacia_L.001/femuor_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/quadril.001/bacia_L.001/femuor_L.001/panturilha_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/quadril.001/bacia_L.001/femuor_L.001/panturilha_L.001/pe1_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/quadril.001/bacia_L.001/femuor_L.001/panturilha_L.001/pe1_L.001/pe2_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/quadril.001/bacia_L.001/femuor_L.001/panturilha_L.001/tornozelo_L.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/quadril.001/bacia_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/quadril.001/bacia_R.001/femuor_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/quadril.001/bacia_R.001/femuor_R.001/panturilha_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/quadril.001/bacia_R.001/femuor_R.001/panturilha_R.001/pe1_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/quadril.001/bacia_R.001/femuor_R.001/panturilha_R.001/pe1_R.001/pe2_R.001
+    m_Weight: 1
+  - m_Path: ossos do corpo/principal.001/quadril.001/bacia_R.001/femuor_R.001/panturilha_R.001/tornozelo_R.001
+    m_Weight: 1

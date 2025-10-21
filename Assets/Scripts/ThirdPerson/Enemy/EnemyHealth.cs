@@ -2,6 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class EnemyHealth : MonoBehaviour
 {
@@ -18,9 +19,11 @@ public class EnemyHealth : MonoBehaviour
     public static event OnEnemyAttack onEnemyAttack;
     public GameObject DropLootPrefab;
     public HitStop hitStop;
-
+    public GameObject xpPopUp;
+    public Canvas inGameCanvas;
     GameObject _dropLootTarget;
-
+    public PointEffect pointEffect;
+    public XPCollection xpCollection;
 
     private void Start()
     {
@@ -29,6 +32,9 @@ public class EnemyHealth : MonoBehaviour
         _dropLootTarget = GameObject.FindGameObjectWithTag("DropLootTracker");
         cam = FindObjectOfType<CameraShake>();
         hitStop = FindObjectOfType<HitStop>();
+        inGameCanvas = GameObject.Find("InGameCanvas").GetComponent<Canvas>();
+        pointEffect = GameObject.Find("PlayerXPManager").GetComponent<PointEffect>();
+        xpCollection = GameObject.Find("XpCollection").GetComponentInChildren<XPCollection>();
     }
     private void Awake()
     {
@@ -90,7 +96,41 @@ public class EnemyHealth : MonoBehaviour
             var go = Instantiate(DropLootPrefab, transform.position + new Vector3(0, Random.Range(0, 2), 0), Quaternion.identity);//
             go.GetComponent<Follow>().Target = _dropLootTarget.transform;
         }
+        GameObject popUp = Instantiate(xpPopUp, inGameCanvas.transform);
+        Vector3 screenPosition = Camera.main.WorldToScreenPoint(transform.position);
+        RectTransform popUpRect = popUp.GetComponent<RectTransform>();
+        popUpRect.position = screenPosition;
 
+        Debug.Log("Pop-up instanciado: " + popUp.name);
+        Debug.Log("Posição na tela: " + screenPosition);
+
+        // VERIFICAÇÃO DE SEGURANÇA - garanta que xpCollection existe
+        int xpValue = 300; // valor padrão
+
+     
+        // CHAMADA CORRETA DA FUNÇÃO ESTÁTICA
+        string xpText = PointEffect.FormatXP(xpValue);
+
+        // Verifique se tem componente TextMeshPro
+        TMPro.TextMeshProUGUI textComponent = popUp.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+        if (textComponent != null)
+        {
+            Debug.Log("Texto encontrado: " + textComponent.text);
+            // Use o texto formatado
+            textComponent.text = xpText; // ← AQUI: use xpText em vez de "+600"
+            Debug.Log("Texto após modificação: " + textComponent.text);
+        }
+        else
+        {
+            Debug.LogError("NENHUM componente TextMeshProUGUI encontrado no pop-up!");
+
+            // Liste todos os componentes para debug
+            Component[] allComponents = popUp.GetComponentsInChildren<Component>();
+            foreach (Component comp in allComponents)
+            {
+                Debug.Log("Componente: " + comp.GetType().Name);
+            }
+        }
     }
 
     private IEnumerator DisableAfterDeath()
