@@ -17,6 +17,7 @@ TagManager:
   - Spawn
   - InGameCanvas
   - totalPoints
+  - hit
   layers:
   - Default
   - TransparentFX

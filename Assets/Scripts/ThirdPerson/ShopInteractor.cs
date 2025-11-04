@@ -27,7 +27,7 @@ public class ShopInteractor : MonoBehaviour, IInteractable
         if(spawnerLife.hitlerIsDead && spawner.aliveEnemies == 0)
         {
             ToggleDoor();
-            SceneManager.LoadScene("Shop");
+            SceneManager.LoadScene("Shop", LoadSceneMode.Single);
         }
         
     }
@@ -40,4 +40,5 @@ public class ShopInteractor : MonoBehaviour, IInteractable
     {
         return transform;
     }
+    
 }

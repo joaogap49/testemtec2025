@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
+using UnityEngine.VFX;
 using static EnemyHealth;
 
 public class PlayerAttack : MonoBehaviour
@@ -12,7 +13,7 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private int attackDamage = 30;
     [SerializeField] private float windUpTime = 0.3f;
     [SerializeField] private float attackOffset = 1.5f; // onde a esfera é centrada à frente do jogador
-    [SerializeField] private LayerMask enemyLayer = 0;  // selecione a layer dos inimigos (opcional)
+    [SerializeField] private LayerMask enemyLayer = 0 ;  // selecione a layer dos inimigos (opcional)
     [SerializeField] private Rigidbody rb;
     [SerializeField] private Stun stun;
     private PlayerThird playerThird;
@@ -21,6 +22,8 @@ public class PlayerAttack : MonoBehaviour
     public float fadeSpeed = 2.0f;
     private float fadeValue = 0.0f;
     private int attackLayerIndex;
+    private hitEffectScript hitScript;
+    
 
     [Header("References")]
     [SerializeField] private Animator anim; // assign no Inspector ou será procurado no Awake
@@ -52,7 +55,10 @@ public class PlayerAttack : MonoBehaviour
         {
             playerThird = GetComponent<PlayerThird>();
         }
-        
+        if(hitScript == null)
+        {
+            hitScript = FindObjectOfType<hitEffectScript>();
+        }
         attackLayerIndex = anim.GetLayerIndex("AttackLayer");
     }
 
@@ -70,6 +76,7 @@ public class PlayerAttack : MonoBehaviour
 
                 StartCoroutine(PerformAttack());
                 
+
         }
         if(fadeValue > 0)
         {
@@ -85,6 +92,7 @@ public class PlayerAttack : MonoBehaviour
         
         
         isAttacking = true;
+        
         lastAttackTime = Time.time;
         StartCoroutine(SmoothLayerTransition(1.0f, 0.1f));
         anim.SetTrigger("attack");
@@ -143,13 +151,15 @@ public class PlayerAttack : MonoBehaviour
                         //Vector3 knockBackDir = (transform.position - hit.transform.position).normalized;
                         //playerThird.ApplyKnockBack(knockBackDir);
 
+                        //COLOCAR EFEITO VISUAL AQUI
+                        
                     }
                     eh.TakeDamage(attackDamage);
                     if (enemyAttack != null)
                     {
                         enemyAttack.ApplyStun(1f);
                     }
-
+                    hitScript.StartEffect(isAttacking, eh.hitSpawner);
                     enemyBasicMovement.currentState = EnemyBasicMovement.EnemyState.Chase;
 
                     Debug.Log($"[PlayerAttack] Aplicou {attackDamage} de dano em '{eh.gameObject.name}'. HP agora = {eh.currentHealth}");
@@ -167,10 +177,11 @@ public class PlayerAttack : MonoBehaviour
             }
             
         }
-        
+
         // Pequena folga (opcional)
         //yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length);
         //yield return null;
+        
         yield return StartCoroutine(SmoothLayerTransition(0f, .1f));
         isAttacking = false;
     }
@@ -202,6 +213,6 @@ public class PlayerAttack : MonoBehaviour
         }
         anim.SetLayerWeight(attackLayerIndex, targetWeight);
     }
-
+    
    
 }

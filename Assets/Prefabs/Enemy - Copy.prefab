@@ -422,6 +422,7 @@ Transform:
   - {fileID: 3739513497600887171}
   - {fileID: 5501144020139320381}
   - {fileID: 5499380632962431094}
+  - {fileID: 7534529478239934565}
   m_Father: {fileID: 6715205086268379421}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &4938768950270946383
@@ -1448,6 +1449,7 @@ MonoBehaviour:
     type: 3}
   xpCollection: {fileID: 3927195001522811742, guid: 62eee15227331db499e7a7f1bc8be610,
     type: 3}
+  hitSpawner: {fileID: 0}
 --- !u!114 &5469481459779337636
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2262,6 +2264,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1551551838885434624}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7264472987136233622
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7534529478239934565}
+  - component: {fileID: 2372496539088491328}
+  m_Layer: 9
+  m_Name: hitEffectSpawner
+  m_TagString: hit
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7534529478239934565
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7264472987136233622}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.0000000074505797, y: 0.000000029802319, z: -0.0000000027939675,
+    w: 1}
+  m_LocalPosition: {x: 0.8700004, y: 33.65, z: 3.0600004}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3854713143388903319}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2372496539088491328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7264472987136233622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c40fbaa2893b74c8a84d40c3afe569, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectInsume: {fileID: 1877577963369314621, guid: 5243cec2412185640873593405c5b586,
+    type: 3}
 --- !u!1 &7473005895051050376
 GameObject:
   m_ObjectHideFlags: 0

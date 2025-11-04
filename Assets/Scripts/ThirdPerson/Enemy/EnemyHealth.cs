@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
+using UnityEngine.VFX;
 
 public class EnemyHealth : MonoBehaviour
 {
@@ -24,6 +25,7 @@ public class EnemyHealth : MonoBehaviour
     GameObject _dropLootTarget;
     public PointEffect pointEffect;
     public XPCollection xpCollection;
+    public Transform hitSpawner;
 
     private void Start()
     {
@@ -35,12 +37,14 @@ public class EnemyHealth : MonoBehaviour
         inGameCanvas = GameObject.Find("InGameCanvas").GetComponent<Canvas>();
         pointEffect = GameObject.Find("PlayerXPManager").GetComponent<PointEffect>();
         xpCollection = GameObject.Find("XpCollection").GetComponentInChildren<XPCollection>();
+        hitSpawner = GameObject.FindGameObjectWithTag("hit").GetComponent<Transform>();
     }
     private void Awake()
     {
         animator = GetComponentInChildren<Animator>();
         enemyBasicMovement = GetComponent<EnemyBasicMovement>();
         enemyAttack = GetComponent<EnemyAttack>();
+        
     }
 
     private void OnEnable()
@@ -70,7 +74,7 @@ public class EnemyHealth : MonoBehaviour
         {
             Die();
             
-            hitStop.DoHitStop(.4f, 0.3f);
+            //hitStop.DoHitStop(.4f, 0.3f);
             OnEnemyDeath?.Invoke(this);
         }
     }
