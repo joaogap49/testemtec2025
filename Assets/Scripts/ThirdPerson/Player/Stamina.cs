@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Script responsável por gerenciar a stamina do jogador, incluindo drenagem, regeneração e atualização da UI.
+// Script responsável por gerenciar a stamina do jogador, incluindo drenagem, regeneraçao e atualização da UI.
 public class Stamina : MonoBehaviour
 {
     [Header("Stamina Main Parameters")]
@@ -12,6 +12,9 @@ public class Stamina : MonoBehaviour
     [HideInInspector] public bool hasRegenerated = true; // Indica se a stamina já regenerou totalmente.
     [HideInInspector] public bool weAreSprinting = false; // Indica se o jogador está tentando correr.
     [HideInInspector] public bool sprintingActive = false; // Indica se o sprint está ativo.
+
+    // Guardamos o valor base configurado no Inspector para calcular bônus de upgrade
+    private float baseMaxStamina;
 
     [Header("Stamina Regen Parameter")]
     [Range(0, 50)][SerializeField] private float staminDrain = 10f; // Taxa de drenagem da stamina por segundo ao correr.
@@ -27,6 +30,23 @@ public class Stamina : MonoBehaviour
 
     // Só pode correr se a stamina for maior que 1/3 do máximo
     public bool CanSprint => playerStamina > (maxStamina / 3f);
+
+    private void Awake()
+    {
+        // Guarda o valor base para uso posterior ao aplicar upgrades
+        baseMaxStamina = maxStamina;
+    }
+
+    // Método para aplicar o bônus de max stamina baseado em níveis de upgrade
+    // levels: número de níveis adquiridos do upgrade de Estamina
+    public void ApplyMaxStaminaBonus(int levels)
+    {
+        // Cada nível adiciona +15 ao maxStamina
+        maxStamina = baseMaxStamina + 15f * levels;
+        // Garante que a stamina atual não exceda o novo máximo
+        if (playerStamina > maxStamina)
+            playerStamina = maxStamina;
+    }
 
     // Método para consumir stamina ao correr.
     public void UseStamina(float deltaTime)

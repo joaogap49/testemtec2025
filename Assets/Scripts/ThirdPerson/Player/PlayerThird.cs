@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.VFX;
 
 // Script responsável pelo controle do personagem em terceira pessoa, incluindo movimentação, rotação e integração com o sistema de stamina.
-public class PlayerThird : MonoBehaviour
+// Agora implementa IShopCustomer para permitir comprar upgrades e aplicar efeitos nos stats.
+public class PlayerThird : MonoBehaviour, IShopCustomer
 {
     [SerializeField] private Animator animator; // Referência ao Animator para controlar animações.
     private bool isWalking; // Indica se o personagem está andando.
@@ -28,11 +29,15 @@ public class PlayerThird : MonoBehaviour
     public VisualEffect visualEffect;
     private PlayerAnimator playerAnimator;
 
-
+    // Valores base (armazenam os valores iniciais para aplicar bônus acumulativos)
+    private int baseMaxHealth;
+    private float baseMoveSpeed;
+    private float baseSprintSpeed;
 
     public bool cubeIsGrounded = true; // Indica se o cubo (personagem) está no chão.
 
     private Stamina stamina; // Referência ao script de stamina.
+    private PlayerAttack playerAttack; // Referência ao script de ataque para aplicar bônus de dano.
 
     // Inicialização das referências.
     private void Awake()
@@ -40,8 +45,8 @@ public class PlayerThird : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
-        visualEffect = bloodPrefab.GetComponent<VisualEffect>();
-       
+        if (bloodPrefab != null)
+            visualEffect = bloodPrefab.GetComponent<VisualEffect>();
     }
 
     private void Start()
@@ -49,31 +54,83 @@ public class PlayerThird : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         stun = GetComponent<Stun>();
         stamina = FindObjectOfType<Stamina>();
+        playerAttack = GetComponent<PlayerAttack>();
+
         if(bloodSpawnPoint == null)
         {
             bloodSpawnPoint = transform;
         }
-        currentHealth = maxHealth;
+
+        // Guarda os valores base para cálculo de bônus por nível
+        baseMaxHealth = maxHealth;
+        baseMoveSpeed = moveSpeed;
+        baseSprintSpeed = SprintSpeed;
+
+        // Aplica níveis de upgrade já adquiridos (caso existam)
+        ApplyUpgrades();
+
+        // Inicializa vida atual e HUD
+        if (currentHealth <= 0)
+            currentHealth = maxHealth;
         if (healthBar != null)
             healthBar.SetMaxHealth(maxHealth);
         if(playerAnimator == null)
         {
             playerAnimator = GetComponent<PlayerAnimator>();
         }
+
+        // LOG: Exibe os níveis atuais e os valores resultantes dos stats
+        int forcaLevel = Upgrades.GetLevel(Upgrades.UpgradeType.Forca);
+        int defesaLevel = Upgrades.GetLevel(Upgrades.UpgradeType.Defesa);
+        int estaminaLevel = Upgrades.GetLevel(Upgrades.UpgradeType.Estamina);
+        int velocidadeLevel = Upgrades.GetLevel(Upgrades.UpgradeType.Velocidade);
+
+        Debug.Log($"PlayerThird - Níveis de upgrades: Força={forcaLevel}, Defesa={defesaLevel}, Estamina={estaminaLevel}, Velocidade={velocidadeLevel}");
+        Debug.Log($"PlayerThird - Stats atuais: maxHealth={maxHealth}, currentHealth={currentHealth}, attackDamage={(playerAttack != null ? playerAttack.GetType().GetField("attackDamage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(playerAttack) : "N/A")}, maxStamina={(stamina != null ? stamina.GetType().GetField("maxStamina", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(stamina) : "N/A")}, moveSpeed={moveSpeed}, SprintSpeed={SprintSpeed}");
+
         Debug.Log("Rigidbody inicializado no Awake: " + rb);
-
-
     }
 
-    // Atualização a cada frame para processar entrada e movimentação.
-    private void FixedUpdate()
+    // Aplica os efeitos dos upgrades nos atributos do jogador. Deve ser chamado no Start e após cada compra.
+    private void ApplyUpgrades()
     {
-        Movement();
-       
-    }
+        // Níveis por tipo de upgrade
+        int forcaLevel = Upgrades.GetLevel(Upgrades.UpgradeType.Forca);
+        int defesaLevel = Upgrades.GetLevel(Upgrades.UpgradeType.Defesa);
+        int estaminaLevel = Upgrades.GetLevel(Upgrades.UpgradeType.Estamina);
+        int velocidadeLevel = Upgrades.GetLevel(Upgrades.UpgradeType.Velocidade);
 
-    // Detecta colisão com o chão para atualizar estados de pulo e aterrissagem.
-    
+        // Health: +20 por nível de Defesa
+        int oldMax = maxHealth;
+        float currentPct = oldMax > 0 ? (float)currentHealth / oldMax : 1f;
+        maxHealth = baseMaxHealth + defesaLevel * 20;
+        currentHealth = Mathf.RoundToInt(currentPct * maxHealth);
+
+        // Atualiza HUD se existir
+        if (healthBar != null)
+        {
+            healthBar.SetMaxHealth(maxHealth);
+            healthBar.SetHealth(currentHealth);
+        }
+
+        // Ataque: +4 por nível de Força
+        if (playerAttack != null)
+        {
+            playerAttack.ApplyAttackBonus(forcaLevel);
+        }
+
+        // Stamina: +15 por nível de Estamina
+        if (stamina != null)
+        {
+            stamina.ApplyMaxStaminaBonus(estaminaLevel);
+        }
+
+        // Velocidade: moveSpeed +1.0f por nível, SprintSpeed +2.0f por nível
+        moveSpeed = baseMoveSpeed + velocidadeLevel * 1.0f;
+        SprintSpeed = baseSprintSpeed + velocidadeLevel * 2.0f;
+
+        Debug.Log($"Upgrades aplicados ? Força:{forcaLevel} Defesa:{defesaLevel} Estamina:{estaminaLevel} Velocidade:{velocidadeLevel}");
+    }
 
     // Retorna se o personagem está correndo.
     public bool IsSprinting()
@@ -94,10 +151,14 @@ public class PlayerThird : MonoBehaviour
         isStunned = value;
     }
 
+    // Atualização a cada frame para processar entrada e movimentação.
+    private void FixedUpdate()
+    {
+        Movement();
+    }
+
     public void Movement()
     {
-       
-        
         Vector2 inputVector = new Vector2(0, 0);
 
         // Captura das teclas de movimento (WASD)
@@ -119,7 +180,6 @@ public class PlayerThird : MonoBehaviour
         }
 
         rb.MovePosition(rb.position + moveDir * currentSpeed * Time.deltaTime);
-        
 
         if (moveDir != Vector3.zero)
         {
@@ -130,20 +190,20 @@ public class PlayerThird : MonoBehaviour
 
         isWalking = moveDir != Vector3.zero;
     }
-    // Observação: A lógica de movimentação foi adaptada de Transform para Rigidbody para melhor integração com a física do Unity.
-   
+
     public void TakeDamage(int damage)
     {
         StartCoroutine(isDamagedCorroutine());
         currentHealth -= damage;
-        healthBar.SetHealth(currentHealth);
+        if (healthBar != null)
+            healthBar.SetHealth(currentHealth);
         PlayBloodEffect();
         Debug.Log("tomei dano:" + damage + "pontos de vida.");
         stun.ApplyStun();
         if (currentHealth < 0)
         {
             Die();
-        }  
+        }
     }
     private IEnumerator isDamagedCorroutine()
     {
@@ -154,7 +214,7 @@ public class PlayerThird : MonoBehaviour
         yield return null;
         StartCoroutine(playerAnimator.SmoothLayerTransition(0f, 0.1f));
     }
-    
+
     // Update is called once per frame
     void Die()
     {
@@ -175,6 +235,7 @@ public class PlayerThird : MonoBehaviour
     {
         return PlayerXPManager.Instance.XP;
     }
+
     public void PlayBloodEffect()
     {
         if(bloodPrefab != null)
@@ -184,10 +245,32 @@ public class PlayerThird : MonoBehaviour
       
             Destroy(bloodInstance, 3.0f);
         }
-        
     }
 
-    
+    // Implementação do IShopCustomer - chamado pela UI da loja quando o jogador compra um item
+    public void BoughtItem(Upgrades.UpgradeType upgradeType)
+    {
+        int cost = Upgrades.GetCost(upgradeType);
+        if (TrySpendXP(cost))
+        {
+            bool increased = Upgrades.IncreaseLevel(upgradeType);
+            if (!increased)
+            {
+                Debug.LogWarning($"Upgrade {upgradeType} já estava no nível máximo.");
+            }
+            else
+            {
+                Debug.Log($"PlayerThird comprou upgrade: {upgradeType}. Agora nível: {Upgrades.GetLevel(upgradeType)}");
+                // Aplica imediatamente os efeitos dos upgrades
+                ApplyUpgrades();
+            }
+        }
+        else
+        {
+            Debug.Log("XP insuficiente para comprar o upgrade!");
+        }
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         //if (collision.gameObject.name == "Floor")
@@ -198,8 +281,5 @@ public class PlayerThird : MonoBehaviour
             //animator.SetBool("IsJumping", false);
             //isJumping = false;
         //}
-        
     }
-    
-
 }

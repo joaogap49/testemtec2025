@@ -288,6 +288,16 @@ namespace Runtime.Script
             {
                 buySound.Play();
                 Debug.Log($"PlayerCharacter bought upgrade: {upgradeType}");
+                // Increase upgrade level
+                bool increased = Upgrades.IncreaseLevel(upgradeType);
+                if (!increased)
+                {
+                    Debug.LogWarning($"Upgrade {upgradeType} was already at max level.");
+                }
+                else
+                {
+                    Debug.Log($"{upgradeType} is now level {Upgrades.GetLevel(upgradeType)}.");
+                }
                 // Aqui você pode aplicar o efeito do upgrade
             }
             else
