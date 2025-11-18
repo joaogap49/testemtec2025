@@ -17,7 +17,7 @@ public class PlayerAnimator : MonoBehaviour
         animator.SetBool("IsRunning", player.IsSprinting());
         animator.SetBool("IsWalking", player.IsWalking());
         animator.SetBool("isDead", player.IsDead());
-        if(player.IsDead())
+        if (player.IsDead())
         {
             animator.SetLayerWeight(0, 0);
             animator.SetLayerWeight(3, 1);
@@ -26,6 +26,9 @@ public class PlayerAnimator : MonoBehaviour
         {
             animator.SetTrigger("damaged");
         }
+        
+            
+        
         
     }
     public IEnumerator SmoothLayerTransition(float targetWeight, float duration, int layerIndex)

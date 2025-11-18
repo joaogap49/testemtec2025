@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18059719, g: 0.22609106, b: 0.30709392, a: 1}
+  m_IndirectSpecularColor: {r: 0.18059748, g: 0.22609155, b: 0.3070948, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -805,7 +805,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.16003418, y: -0.040039062}
+  m_AnchoredPosition: {x: -0.16015625, y: -0.040039062}
   m_SizeDelta: {x: -605.32, y: -270.08002}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &201751995
@@ -12197,6 +12197,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
+  isDead: 0
   isGrounded: 0
   isStunned: 0
   moveSpeed: 6
@@ -12208,7 +12209,6 @@ MonoBehaviour:
     type: 3}
   bloodSpawnPoint: {fileID: 1158228972657228566}
   visualEffect: {fileID: 0}
-  capsuleCollider: {fileID: 0}
   cubeIsGrounded: 1
 --- !u!4 &379851620256171852
 Transform:

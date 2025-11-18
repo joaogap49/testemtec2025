@@ -11,6 +11,7 @@ public class PlayerThird : MonoBehaviour, IShopCustomer
     private bool isWalking; // Indica se o personagem está andando.
     private bool isJumping; // Indica se o personagem está pulando.
     private bool isDamaged; // Indica se o personagem tomou dano.
+    public bool isDead;
     [SerializeField] private bool isGrounded; // Indica se o personagem está no chão.
     private bool isSprinting; // Indica se o personagem está correndo.
     private Rigidbody rb; // Referência ao Rigidbody para movimentação física.
@@ -28,6 +29,7 @@ public class PlayerThird : MonoBehaviour, IShopCustomer
     public Transform bloodSpawnPoint;
     public VisualEffect visualEffect;
     private PlayerAnimator playerAnimator;
+    private CapsuleCollider capsuleCollider;
 
     // Valores base (armazenam os valores iniciais para aplicar bônus acumulativos)
     private int baseMaxHealth;
@@ -43,6 +45,7 @@ public class PlayerThird : MonoBehaviour, IShopCustomer
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        capsuleCollider = GetComponent<CapsuleCollider>();
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         if (bloodPrefab != null)
@@ -151,7 +154,10 @@ public class PlayerThird : MonoBehaviour, IShopCustomer
     {
         isStunned = value;
     }
-
+    public bool IsDead()
+    {
+        return isDead;
+    }
     // Atualização a cada frame para processar entrada e movimentação.
     private void FixedUpdate()
     {
@@ -204,22 +210,25 @@ public class PlayerThird : MonoBehaviour, IShopCustomer
         if (currentHealth < 0)
         {
             Die();
+            isDead = true;
         }
     }
     private IEnumerator isDamagedCorroutine()
     {
         isDamaged = true;
-        StartCoroutine(playerAnimator.SmoothLayerTransition(1.0f, 0.1f));
+        StartCoroutine(playerAnimator.SmoothLayerTransition(1.0f, 0.1f, 2));
         yield return new WaitForSeconds(.24f);
         isDamaged = false;
         yield return null;
-        StartCoroutine(playerAnimator.SmoothLayerTransition(0f, 0.1f));
+        StartCoroutine(playerAnimator.SmoothLayerTransition(0f, 0.1f, 2));
     }
 
     // Update is called once per frame
     void Die()
     {
         Debug.Log("morte morrida");
+        StartCoroutine(DeathAnimation());
+        StartCoroutine(TimeCooling());
     }
 
     public void AddXP(int amount)
@@ -283,4 +292,18 @@ public class PlayerThird : MonoBehaviour, IShopCustomer
             //isJumping = false;
         //}
     }
+    public IEnumerator TimeCooling()
+    {
+        yield return new WaitForSeconds(2.0f);
+        Time.timeScale = 0;
+        yield return null;
+    }
+    public IEnumerator DeathAnimation()
+    {
+        yield return new WaitForSeconds(0.5f);
+        capsuleCollider.direction = 2;
+        capsuleCollider.radius = 3.42f;
+        yield return null;
+    }
+
 }
