@@ -4,50 +4,61 @@ using Runtime.Script; // Needed to find PlayerCharacter / Player classes
 using UnityEngine.UI;
 using System.Collections;
 
-// Simple options/pause menu manager. Attach to a persistent Canvas GameObject in your scene
-// and assign the optionsPanel (the UI Panel to show when ESC is pressed).
+// Gerencia o menu de opções / pausa do jogo.
+// Anexe este componente a um Canvas persistente e atribua o painel de opções (optionsPanel).
 public class MenuOptionsManager : MonoBehaviour
 {
     [Tooltip("Panel (GameObject) that contains the options/pause UI. Will be enabled/disabled on ESC.")]
+    // Painel que contém a UI de opções/pausa
     public GameObject optionsPanel;
 
     [Tooltip("Scene name used for Phase1 (third person). Matches the scene loaded in your project.)")]
+    // Nome da cena usada para o modo third-person (Phase1)
     public string phase1SceneName = "PHASE1";
 
     [Tooltip("Scene name used for Shop (first person).")]
+    // Nome da cena usada para a loja / first-person
     public string shopSceneName = "Shop";
 
     [Header("Blur Settings")] 
+    // Controla se o desfoque dinâmico deve ser aplicado ao abrir o menu
     public bool enableBlur = true;
     [Tooltip("Divides the screen resolution for capture. Higher value = smaller texture = faster blur")] 
+    // Redução de resolução para captura (performance)
     public int blurDownsample = 4;
     [Tooltip("Radius for box blur applied on the downsampled image")] 
+    // Raio do desfoque (box blur)
     public int blurRadius = 2;
     [Tooltip("How many times to iterate the blur (more = stronger blur)")]
+    // Quantas iterações do blur (mais = blur mais forte)
     public int blurIterations = 2;
 
+    // Estado interno: se o menu está aberto e nome da cena atual
     private bool isOpen = false;
     private string currentSceneName;
 
-    // cached player controllers so we can re-enable them when resuming
+    // Cache dos controladores do jogador para reativar ao retomar
     private MonoBehaviour cachedThirdPersonController;
     private MonoBehaviour cachedFirstPersonController;
 
-    // runtime blur UI
+    // UI em tempo de execução para o desfoque (RawImage) e textura borrada
     private RawImage blurRawImage;
     private Texture2D blurredTexture;
 
     void Start()
     {
+        // Armazena o nome da cena atual
         currentSceneName = SceneManager.GetActiveScene().name;
         if (optionsPanel != null)
         {
+            // Garantir painel inicialmente escondido
             optionsPanel.SetActive(false);
         }
     }
 
     void Update()
     {
+        // Ao pressionar ESC, tenta abrir/fechar o menu se aplicável na cena atual
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (ShouldRespondInCurrentScene())
@@ -57,15 +68,16 @@ public class MenuOptionsManager : MonoBehaviour
         }
     }
 
+    // Verifica se o manager deve responder ao ESC na cena atual
     private bool ShouldRespondInCurrentScene()
     {
-        // Phase1: only respond if a third person player exists
+        // Phase1: responde somente se existir PlayerThird na cena
         if (currentSceneName == phase1SceneName)
         {
             return FindObjectOfType<PlayerThird>() != null;
         }
 
-        // Shop: only respond if a first person player exists (check common first-person player classes)
+        // Shop: responde somente se existir um controlador first-person conhecido
         if (currentSceneName == shopSceneName)
         {
             if (FindObjectOfType<PlayerCharacter>() != null) return true;
@@ -73,10 +85,11 @@ public class MenuOptionsManager : MonoBehaviour
             return false;
         }
 
-        // For other scenes, do not open by default. You can change this if wanted.
+        // Em outras cenas, por padrão não responde
         return false;
     }
 
+    // Alterna o estado do menu de opções (abre/fecha)
     private void ToggleOptions()
     {
         isOpen = !isOpen;
@@ -85,7 +98,7 @@ public class MenuOptionsManager : MonoBehaviour
         {
             if (enableBlur)
             {
-                // capture current frame and apply blur before pausing
+                // Captura o quadro atual e aplica desfoque antes de pausar
                 StartCoroutine(OpenWithBlur());
             }
             else
@@ -102,12 +115,13 @@ public class MenuOptionsManager : MonoBehaviour
         }
     }
 
+    // Coroutine que captura a tela, aplica blur e mostra o painel acima
     private IEnumerator OpenWithBlur()
     {
-        // ensure options panel inactive while we capture the scene behind it
+        // Assegura que o painel esteja inativo durante a captura
         if (optionsPanel != null) optionsPanel.SetActive(false);
 
-        // wait for end of frame so camera finished rendering
+        // Espera o fim do frame para garantir que a câmera terminou de renderizar
         yield return new WaitForEndOfFrame();
 
         Texture2D snap = CaptureScreenDownsampled();
@@ -128,9 +142,10 @@ public class MenuOptionsManager : MonoBehaviour
             }
         }
 
-        // show panel above blur
+        // Exibe o painel acima do desfoque
         if (optionsPanel != null)
         {
+            optionsPanel.SetActive(isOpen);
             Canvas canvas = optionsPanel.GetComponentInParent<Canvas>();
             if (canvas != null && blurRawImage != null)
             {
@@ -146,6 +161,7 @@ public class MenuOptionsManager : MonoBehaviour
         PauseGame();
     }
 
+    // Captura a tela em uma textura reduzida conforme blurDownsample
     private Texture2D CaptureScreenDownsampled()
     {
         Camera cam = Camera.main;
@@ -175,6 +191,7 @@ public class MenuOptionsManager : MonoBehaviour
         return tex;
     }
 
+    // Aplica um box blur simples na textura (horizontal + vertical passes)
     private Texture2D BlurTexture(Texture2D src)
     {
         if (src == null) return null;
@@ -191,19 +208,19 @@ public class MenuOptionsManager : MonoBehaviour
 
         if (radius == 0 || blurIterations <= 0)
         {
-            // no blur requested
+            // Sem blur solicitado
             return src;
         }
 
         for (int iter = 0; iter < blurIterations; iter++)
         {
-            // horizontal pass: srcColors -> tempColors
+            // passagem horizontal: srcColors -> tempColors
             for (int y = 0; y < h; y++)
             {
                 int baseIndex = y * w;
                 int rSum = 0, gSum = 0, bSum = 0, aSum = 0;
 
-                // initial window
+                // janela inicial
                 for (int i = -radius; i <= radius; i++)
                 {
                     int xi = Mathf.Clamp(i, 0, w - 1);
@@ -226,7 +243,7 @@ public class MenuOptionsManager : MonoBehaviour
                 }
             }
 
-            // vertical pass: tempColors -> dstColors
+            // passagem vertical: tempColors -> dstColors
             for (int x = 0; x < w; x++)
             {
                 int rSum = 0, gSum = 0, bSum = 0, aSum = 0;
@@ -253,23 +270,24 @@ public class MenuOptionsManager : MonoBehaviour
                 }
             }
 
-            // swap buffers for next iteration
+            // troca buffers para a próxima iteração
             var swap = srcColors;
             srcColors = dstColors;
             dstColors = swap;
         }
 
-        // build result texture (srcColors currently contains latest)
+        // constrói a textura resultado (srcColors contém os dados finais)
         Texture2D result = new Texture2D(w, h, TextureFormat.RGBA32, false);
         result.SetPixels32(srcColors);
         result.Apply();
 
-        // free the original small snapshot
+        // libera o snapshot original reduzido
         Destroy(src);
 
         return result;
     }
 
+    // Cria um RawImage em tempo de execução para exibir o desfoque, se ainda não existir
     private void CreateBlurRawImageIfNeeded()
     {
         if (blurRawImage != null) return;
@@ -293,12 +311,13 @@ public class MenuOptionsManager : MonoBehaviour
         blurRawImage = go.AddComponent<RawImage>();
         blurRawImage.raycastTarget = false;
 
-        // place under the options panel in hierarchy so panel is visible above blur
+        // coloca sob o painel de opções na hierarquia para que o painel fique acima do blur
         int panelIndex = optionsPanel.transform.GetSiblingIndex();
         go.transform.SetSiblingIndex(panelIndex);
         optionsPanel.transform.SetAsLastSibling();
     }
 
+    // Remove/destrói a imagem e textura de desfoque criadas em tempo de execução
     private void RemoveBlur()
     {
         if (blurRawImage != null)
@@ -314,48 +333,62 @@ public class MenuOptionsManager : MonoBehaviour
         }
     }
 
+    // Pausa o jogo: Time.timeScale = 0 e desabilita controladores apropriados
     private void PauseGame()
     {
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // Disable player controllers to prevent input while paused
-        cachedThirdPersonController = FindObjectOfType<PlayerThird>();
-        if (cachedThirdPersonController != null)
+        // Desabilita controladores dependendo da cena atual
+        if (currentSceneName == phase1SceneName)
         {
-            cachedThirdPersonController.enabled = false;
+            cachedThirdPersonController = FindObjectOfType<PlayerThird>();
+            if (cachedThirdPersonController != null)
+            {
+                cachedThirdPersonController.enabled = false;
+            }
         }
 
-        MonoBehaviour fp = FindObjectOfType<PlayerCharacter>() as MonoBehaviour;
-        if (fp == null) fp = FindObjectOfType<Player>() as MonoBehaviour;
-        if (fp != null)
+        if (currentSceneName == shopSceneName)
         {
-            cachedFirstPersonController = fp;
-            cachedFirstPersonController.enabled = false;
+            MonoBehaviour fp = FindObjectOfType<PlayerCharacter>() as MonoBehaviour;
+            if (fp == null) fp = FindObjectOfType<Player>() as MonoBehaviour;
+            if (fp != null)
+            {
+                cachedFirstPersonController = fp;
+                cachedFirstPersonController.enabled = false;
+            }
         }
     }
 
+    // Retoma o jogo: restaura Time.timeScale e reativa controladores previamente desabilitados
     private void ResumeGame()
     {
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        if (cachedThirdPersonController != null)
+        if (currentSceneName == phase1SceneName)
         {
-            cachedThirdPersonController.enabled = true;
-            cachedThirdPersonController = null;
+            if (cachedThirdPersonController != null)
+            {
+                cachedThirdPersonController.enabled = true;
+                cachedThirdPersonController = null;
+            }
         }
 
-        if (cachedFirstPersonController != null)
+        if (currentSceneName == shopSceneName)
         {
-            cachedFirstPersonController.enabled = true;
-            cachedFirstPersonController = null;
+            if (cachedFirstPersonController != null)
+            {
+                cachedFirstPersonController.enabled = true;
+                cachedFirstPersonController = null;
+            }
         }
     }
 
-    // Public UI callbacks
+    // Callbacks públicos para botões da UI
     public void Resume()
     {
         if (isOpen)
@@ -381,7 +414,7 @@ public class MenuOptionsManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // cleanup any runtime textures
+        // Limpa quaisquer texturas criadas em runtime e garante que o tempo não fique pausado
         RemoveBlur();
         Time.timeScale = 1f;
     }

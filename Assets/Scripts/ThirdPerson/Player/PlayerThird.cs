@@ -220,6 +220,20 @@ public class PlayerThird : MonoBehaviour, IShopCustomer
     void Die()
     {
         Debug.Log("morte morrida");
+
+        // Show Game Over UI if a manager exists in the scene
+        var gom = GameObject.FindObjectOfType<GameOverManager>();
+        if (gom != null)
+        {
+            gom.ShowGameOver("Game Over", "Você morreu");
+        }
+        else
+        {
+            // fallback: pause the game and show cursor so player can inspect
+            Time.timeScale = 0f;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 
     public void AddXP(int amount)
