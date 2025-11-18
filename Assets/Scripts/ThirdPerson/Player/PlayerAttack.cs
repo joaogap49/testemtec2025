@@ -23,7 +23,9 @@ public class PlayerAttack : MonoBehaviour
     private float fadeValue = 0.0f;
     private int attackLayerIndex;
     private hitEffectScript hitScript;
-    
+
+    // Guarda o dano base configurado no Inspector para aplicar bônus de upgrade
+    private int baseAttackDamage;
 
     [Header("References")]
     [SerializeField] private Animator anim; // assign no Inspector ou será procurado no Awake
@@ -60,6 +62,15 @@ public class PlayerAttack : MonoBehaviour
             hitScript = FindObjectOfType<hitEffectScript>();
         }
         attackLayerIndex = anim.GetLayerIndex("AttackLayer");
+
+        // Armazena o dano base para permitir aplicação de bônus posteriormente
+        baseAttackDamage = attackDamage;
+    }
+
+    // Aplica bônus de ataque com base no número de níveis do upgrade Força
+    public void ApplyAttackBonus(int levels)
+    {
+        attackDamage = baseAttackDamage + 4 * levels;
     }
 
     private void Update()
@@ -67,7 +78,7 @@ public class PlayerAttack : MonoBehaviour
         // DEBUG: mostra quando o clique foi detectado e se o cooldown permite
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log($"[PlayerAttack] Mouse0 pressed — isAttacking={isAttacking} timeOK={(Time.time >= lastAttackTime + attackCooldown)}");
+            Debug.Log($"[PlayerAttack] Mouse0 pressed ? isAttacking={isAttacking} timeOK={(Time.time >= lastAttackTime + attackCooldown)}");
         }
 
         // Use GetMouseButtonDown para responder ao clique uma vez

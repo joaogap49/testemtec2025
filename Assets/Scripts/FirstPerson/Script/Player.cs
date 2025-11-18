@@ -28,11 +28,19 @@ using UnityEngine;
             playerCharacter.Initialize();
             // Passa o alvo da câmera (normalmente a cabeça do personagem) para a câmera seguir
             playerCamera.Initialize(playerCharacter.GetCameraTarget());
+
+            // Esconde e trava o cursor para primeira pessoa
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
 
         // Libera recursos do sistema de input ao destruir o objeto
         void OnDestroy()
         {
+            // Restaura cursor visibilidade/estado ao sair
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+
             _inputActions.Dispose();
         }
 

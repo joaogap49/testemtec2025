@@ -24,7 +24,8 @@ public class ShopInteractor : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        if(spawnerLife.hitlerIsDead && spawner.aliveEnemies == 0)
+        //if(spawnerLife.hitlerIsDead && spawner.aliveEnemies == 0)
+        if (Input.GetKeyDown(KeyCode.E))
         {
             ToggleDoor();
             SceneManager.LoadScene("Shop", LoadSceneMode.Single);
