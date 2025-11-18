@@ -21,6 +21,12 @@ public class TotalPointsEffects : MonoBehaviour
         // CHAMADA CORRETA DA FUNÇÃO ESTÁTICA
         string xpText = PointEffect.FormatXP(totalXPValue);
 
+        // Remove '+' caso exista no começo (queremos mostrar o total sem '+')
+        if (!string.IsNullOrEmpty(xpText) && xpText.StartsWith("+"))
+        {
+            xpText = xpText.Substring(1);
+        }
+
         // Verifique se tem componente TextMeshPro
         TMPro.TextMeshProUGUI textComponent = GetComponent<TMPro.TextMeshProUGUI>();
         
@@ -28,7 +34,7 @@ public class TotalPointsEffects : MonoBehaviour
         {
             //Debug.Log("Texto encontrado: " + textComponent.text);
             // Use o texto formatado
-            textComponent.text = xpText; // ← AQUI: use xpText em vez de "+600"
+            textComponent.text = xpText; // ← AQUI: use xpText sem '+'
             //Debug.Log("Texto após modificação: " + textComponent.text);
         }
         else

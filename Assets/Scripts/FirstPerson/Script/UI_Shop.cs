@@ -89,12 +89,36 @@ public class UI_Shop : MonoBehaviour
 
         int level = Upgrades.GetLevel(upgradeType);
 
+        // Define cores:
+        // Nível 0 -> neutro (cinza-claro/branco)
+        // Níveis 1-4 -> verde
+        // Nível máximo -> dourado/amarelo
+        Color neutralColor = new Color(0.9f, 0.9f, 0.9f);
+        Color greenColor = new Color(0.18f, 0.8f, 0.25f);
+        Color goldColor = new Color(1f, 0.84f, 0f);
+
+        Color chosenColor = neutralColor;
+        if (level == 0)
+        {
+            chosenColor = neutralColor;
+        }
+        else if (level >= 1 && level < Upgrades.MAX_LEVEL)
+        {
+            chosenColor = greenColor;
+        }
+        else if (level >= Upgrades.MAX_LEVEL)
+        {
+            chosenColor = goldColor;
+        }
+
         if (Upgrades.IsMaxLevel(upgradeType))
         {
             // Se já atingiu o nível máximo, mostra "MAX" e remove ação de clique
             priceText?.SetText("MAX");
             // Mostra nível final também
             levelText?.SetText($"Nível {level}");
+            // Aplica cor dourada no texto de nível
+            if (levelText != null) levelText.color = chosenColor;
             button.ClickFunc = null;
         }
         else
@@ -105,8 +129,12 @@ public class UI_Shop : MonoBehaviour
             // Garante que o clique esteja configurado para tentar comprar
             button.ClickFunc = () => TryBuyUpgrade(upgradeType);
 
-            // Atualiza o texto de nível atual
-            levelText?.SetText($"Nível {level}");
+            // Atualiza o texto de nível atual e aplica cor conforme nível
+            if (levelText != null)
+            {
+                levelText.SetText($"Nível {level}");
+                levelText.color = chosenColor;
+            }
 
             // Observação: aqui poderíamos desabilitar visualmente o botão se o jogador não tiver XP suficiente
             if (shopCustomer is PlayerCharacter pc)
@@ -152,6 +180,10 @@ public class UI_Shop : MonoBehaviour
         this.shopCustomer = shopCustomer;
         gameObject.SetActive(true);
 
+        // Torna o cursor visível e desbloqueado para permitir interação com a UI
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
         // Refresca todos os itens ao abrir a loja
         foreach (var kv in shopItemTransforms)
         {
@@ -163,5 +195,9 @@ public class UI_Shop : MonoBehaviour
     public void Hide()
     {
         gameObject.SetActive(false);
+
+        // Ao fechar, esconde e trava o cursor novamente (modo primeira pessoa)
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 }

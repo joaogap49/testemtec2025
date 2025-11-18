@@ -126,7 +126,8 @@ public class PlayerThird : MonoBehaviour, IShopCustomer
         }
 
         // Velocidade: moveSpeed +1.0f por nível, SprintSpeed +2.0f por nível
-        moveSpeed = baseMoveSpeed + velocidadeLevel * 1.0f;
+        // Agora o upgrade de Velocidade só aumenta a velocidade de SPRINT, não a velocidade de caminhada.
+        moveSpeed = baseMoveSpeed;
         SprintSpeed = baseSprintSpeed + velocidadeLevel * 2.0f;
 
         Debug.Log($"Upgrades aplicados ? Força:{forcaLevel} Defesa:{defesaLevel} Estamina:{estaminaLevel} Velocidade:{velocidadeLevel}");
