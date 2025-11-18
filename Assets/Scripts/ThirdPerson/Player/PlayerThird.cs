@@ -10,6 +10,7 @@ public class PlayerThird : MonoBehaviour
     private bool isWalking; // Indica se o personagem está andando.
     private bool isJumping; // Indica se o personagem está pulando.
     private bool isDamaged; // Indica se o personagem tomou dano.
+    private bool isDead; // Indica se o personagem MORREU.
     [SerializeField] private bool isGrounded; // Indica se o personagem está no chão.
     private bool isSprinting; // Indica se o personagem está correndo.
     private Rigidbody rb; // Referência ao Rigidbody para movimentação física.
@@ -27,6 +28,8 @@ public class PlayerThird : MonoBehaviour
     public Transform bloodSpawnPoint;
     public VisualEffect visualEffect;
     private PlayerAnimator playerAnimator;
+    
+    public CapsuleCollider capsuleCollider;
 
 
 
@@ -49,6 +52,7 @@ public class PlayerThird : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         stun = GetComponent<Stun>();
         stamina = FindObjectOfType<Stamina>();
+        capsuleCollider = GetComponent<CapsuleCollider>();
         if(bloodSpawnPoint == null)
         {
             bloodSpawnPoint = transform;
@@ -93,7 +97,10 @@ public class PlayerThird : MonoBehaviour
     {
         isStunned = value;
     }
-
+    public bool IsDead()
+    {
+        return isDead;
+    }
     public void Movement()
     {
        
@@ -143,22 +150,28 @@ public class PlayerThird : MonoBehaviour
         if (currentHealth < 0)
         {
             Die();
+            StartCoroutine(HeightDown());
+            StartCoroutine(TimeCooling());  
+            isDamaged = false;
+            isDead = true;
+           
         }  
     }
     private IEnumerator isDamagedCorroutine()
     {
         isDamaged = true;
-        StartCoroutine(playerAnimator.SmoothLayerTransition(1.0f, 0.1f));
+        StartCoroutine(playerAnimator.SmoothLayerTransition(1.0f, 0.1f, 2));
         yield return new WaitForSeconds(.24f);
         isDamaged = false;
         yield return null;
-        StartCoroutine(playerAnimator.SmoothLayerTransition(0f, 0.1f));
+        StartCoroutine(playerAnimator.SmoothLayerTransition(0f, 0.1f, 2));
     }
     
     // Update is called once per frame
     void Die()
     {
         Debug.Log("morte morrida");
+        
     }
 
     public void AddXP(int amount)
@@ -200,6 +213,19 @@ public class PlayerThird : MonoBehaviour
         //}
         
     }
-    
+    public IEnumerator TimeCooling()
+    {
+        yield return new WaitForSeconds(2.0f);
+        Time.timeScale = 0f;
+        
+    }
+    public IEnumerator HeightDown()
+    {
+        yield return new WaitForSeconds(0.5f);
+        capsuleCollider.direction = 2;
+        capsuleCollider.radius = 3.42f;
+       
+        
+    }
 
 }

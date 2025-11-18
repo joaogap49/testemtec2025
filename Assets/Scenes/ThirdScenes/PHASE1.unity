@@ -11086,6 +11086,7 @@ MonoBehaviour:
     type: 3}
   bloodSpawnPoint: {fileID: 1158228972657228566}
   visualEffect: {fileID: 0}
+  capsuleCollider: {fileID: 0}
   cubeIsGrounded: 1
 --- !u!4 &379851620256171852
 Transform:

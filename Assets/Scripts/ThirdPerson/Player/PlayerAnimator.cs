@@ -16,13 +16,19 @@ public class PlayerAnimator : MonoBehaviour
     {
         animator.SetBool("IsRunning", player.IsSprinting());
         animator.SetBool("IsWalking", player.IsWalking());
+        animator.SetBool("isDead", player.IsDead());
+        if(player.IsDead())
+        {
+            animator.SetLayerWeight(0, 0);
+            animator.SetLayerWeight(3, 1);
+        }
         if(player.IsDamaged())
         {
             animator.SetTrigger("damaged");
-            
         }
+        
     }
-    public IEnumerator SmoothLayerTransition(float targetWeight, float duration)
+    public IEnumerator SmoothLayerTransition(float targetWeight, float duration, int layerIndex)
     {
         float startWeight = animator.GetLayerWeight(damageIndex);
         float currentWeight = startWeight;
