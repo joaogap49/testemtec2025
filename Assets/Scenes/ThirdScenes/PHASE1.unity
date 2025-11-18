@@ -97,8 +97,10 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
-  m_LightingSettings: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 0451bd2ad22d1594ea2af36a251ca466,
+    type: 2}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 7d85da3a61c8caf4fac2d31f1f813876,
+    type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -14211,8 +14213,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
-  isDead: 0
   isGrounded: 0
+  showGameOver: 0
   isStunned: 0
   moveSpeed: 6
   SprintSpeed: 12
@@ -20629,7 +20631,7 @@ MonoBehaviour:
   m_IgnoreTimeScale: 0
   m_WorldUpOverride: {fileID: 0}
   m_UpdateMethod: 1
-  m_BlendUpdateMethod: 0
+  m_BlendUpdateMethod: 1
   m_DefaultBlend:
     m_Style: 1
     m_Time: 0
@@ -21177,6 +21179,8 @@ MonoBehaviour:
     m_Bits: 0
   rb: {fileID: 0}
   stun: {fileID: 0}
+  layerFadeInTime: 0.05
+  layerFadeOutTime: 0.1
   slashMaterial: {fileID: 2100000, guid: 8da3a50f6ce7d034994af9578265209c, type: 2}
   glowMaterial: {fileID: 2100000, guid: eb67e2bc6f1d2cc44a6c698405a84e3f, type: 2}
   fadeSpeed: 0.8

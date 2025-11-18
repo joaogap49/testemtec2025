@@ -38166,7 +38166,8 @@ AnimationClip:
   - time: 0.26666668
     functionName: StartEffect
     data: 
-    objectReferenceParameter: {fileID: 0}
+    objectReferenceParameter: {fileID: 11500000, guid: 0710f0e538986bc4bbef06666f75d8e7,
+      type: 3}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0

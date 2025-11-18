@@ -14,9 +14,12 @@ public class SpawnerLife : MonoBehaviour, IHitable
     {
         currentHealth = maxHealth;
         spawner = GetComponentInChildren<Spawner>().gameObject;
-        meshSpawner = GameObject.FindGameObjectWithTag("spawnObject").GetComponent<MeshRenderer>();
-        sphereCollider = GetComponent<SphereCollider>();   
+        // Busca o MeshRenderer no próprio objeto ou nos filhos
+        meshSpawner = GetComponentInChildren<MeshRenderer>();
+        sphereCollider = GetComponent<SphereCollider>();
         hitlerIsDead = false;
+
+        Debug.Log("SpawnerLife: MeshRenderer encontrado? " + (meshSpawner != null));
     }
     private void Update()
     {
@@ -32,17 +35,28 @@ public class SpawnerLife : MonoBehaviour, IHitable
     }
     void Die()
     {
-        
-        if(meshSpawner != null)
+        if (hitlerIsDead) return; // Evita execução múltipla
+
+        hitlerIsDead = true;
+        Debug.Log("SpawnerLife: Spawner morreu!");
+
+        if (meshSpawner != null)
         {
             meshSpawner.enabled = false;
         }
-        if(sphereCollider != null)
+        if (sphereCollider != null)
         {
-            sphereCollider.isTrigger = true;
+            sphereCollider.enabled = false; // Desativa completamente
         }
-        hitlerIsDead = true;
-        
+
+        // Para o spawn de inimigos
+        Spawner spawnerComponent = GetComponentInChildren<Spawner>();
+        if (spawnerComponent != null)
+        {
+            spawnerComponent.StopAllCoroutines();
+            spawnerComponent.enabled = false;
+        }
+
     }
     public void Execute(Transform attackSource, bool isPlayerAttack)
     {

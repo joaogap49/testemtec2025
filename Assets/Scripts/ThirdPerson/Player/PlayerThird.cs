@@ -11,7 +11,9 @@ public class PlayerThird : MonoBehaviour, IShopCustomer
     private bool isWalking; // Indica se o personagem está andando.
     private bool isJumping; // Indica se o personagem está pulando.
     private bool isDamaged; // Indica se o personagem tomou dano.
+    private bool isDead;
     [SerializeField] private bool isGrounded; // Indica se o personagem está no chão.
+    public bool showGameOver;
     private bool isSprinting; // Indica se o personagem está correndo.
     private Rigidbody rb; // Referência ao Rigidbody para movimentação física.
     Stun stun;
@@ -28,6 +30,7 @@ public class PlayerThird : MonoBehaviour, IShopCustomer
     public Transform bloodSpawnPoint;
     public VisualEffect visualEffect;
     private PlayerAnimator playerAnimator;
+    private CapsuleCollider capsuleCollider;
 
     // Valores base (armazenam os valores iniciais para aplicar bônus acumulativos)
     private int baseMaxHealth;
@@ -43,6 +46,7 @@ public class PlayerThird : MonoBehaviour, IShopCustomer
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        capsuleCollider = GetComponent<CapsuleCollider>();
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         if (bloodPrefab != null)
@@ -147,13 +151,17 @@ public class PlayerThird : MonoBehaviour, IShopCustomer
     {
         return isDamaged;
     }
+    public bool IsDead()
+    {
+        return isDead;
+    }
     public void SetStunned(bool value)
     {
         isStunned = value;
     }
 
     // Atualização a cada frame para processar entrada e movimentação.
-    private void FixedUpdate()
+    private void Update()
     {
         Movement();
     }
@@ -203,37 +211,46 @@ public class PlayerThird : MonoBehaviour, IShopCustomer
         stun.ApplyStun();
         if (currentHealth < 0)
         {
-            Die();
+            StartCoroutine(DeathAnimation());
+            
+            isDead = true;
         }
     }
     private IEnumerator isDamagedCorroutine()
     {
         isDamaged = true;
-        StartCoroutine(playerAnimator.SmoothLayerTransition(1.0f, 0.1f));
+        StartCoroutine(playerAnimator.SmoothLayerTransition(1.0f, 0.1f, 2));
         yield return new WaitForSeconds(.24f);
         isDamaged = false;
         yield return null;
-        StartCoroutine(playerAnimator.SmoothLayerTransition(0f, 0.1f));
+        StartCoroutine(playerAnimator.SmoothLayerTransition(0f, 0.1f, 2));
     }
 
     // Update is called once per frame
     void Die()
     {
         Debug.Log("morte morrida");
-
+        
+        
         // Show Game Over UI if a manager exists in the scene
         var gom = GameObject.FindObjectOfType<GameOverManager>();
+        StartCoroutine(GameOverDelay());
         if (gom != null)
         {
-            gom.ShowGameOver("Game Over", "Você morreu");
+            if(!showGameOver)
+            {
+                gom.ShowGameOver("Game Over", "Você morreu");
+            }
+            
         }
         else
         {
             // fallback: pause the game and show cursor so player can inspect
-            Time.timeScale = 0f;
+            //Time.timeScale = 0f;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
+        
     }
 
     public void AddXP(int amount)
@@ -285,7 +302,28 @@ public class PlayerThird : MonoBehaviour, IShopCustomer
             Debug.Log("XP insuficiente para comprar o upgrade!");
         }
     }
-
+    public IEnumerator TimeCooling()
+    {
+        yield return new WaitForSeconds(2.0f);
+        Time.timeScale = 0;
+        yield return null;
+    }
+    public IEnumerator DeathAnimation()
+    {
+        capsuleCollider.direction = 2;
+        capsuleCollider.radius = 3.42f;
+        yield return new WaitForSeconds(2f);
+        Die();
+        yield return null;
+        StartCoroutine(TimeCooling());
+    }
+    public IEnumerator GameOverDelay()
+    {
+        yield return new WaitForSeconds(4.0f);
+        showGameOver = true;
+    }
+    
+    
     private void OnCollisionEnter(Collision collision)
     {
         //if (collision.gameObject.name == "Floor")

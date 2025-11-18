@@ -1,61 +1,67 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.InputSystem.Android;
 
 [RequireComponent(typeof(NavMeshAgent))]
-//O require component faz o seguinte: Se por acaso eu esqueci de colocar algum componente, com esse Require o Unity adiciona automaticamente para mim. Nesse caso, o script exige NavMeshComponent, e se este nao existir, vai adicionar automaticamente.
 public class EnemyBasicMovement : MonoBehaviour
 {
-    //Esse aqui È pesad„o. Puta que pariu.
-
-    public enum EnemyState { Patrol, Chase, Searching } //Eu poderia fazer de quinhentos jeitos. Mas esse È bem interessante: O inimigo se comporta em tres fases, a fase de patrulha, onde ele sÛ segue os vetores de patrulha; 
-                                                        //a fase de perseguiÁ„o que ele sÛ tem um alvo, que È o transform do player(aqui est· como target); e a fase de procura, que È quando nÛs como player conseguimos fugir,
-    public EnemyAttack enemyAttack;                     //ai a IA tenta buscar a gente por um tempo curto. Se esse tempo acabar, e a ultima posiÁ„o do player n„o bater com a posiÁ„o que o player realmente esta, a busca acaba
-                                                        // e voltamos para a patrulha.
-    public EnemyState currentState = EnemyState.Patrol; //O jogo comeÁa com os inimigos em patrulha, somente.
+    public enum EnemyState { Patrol, Chase, Searching }
+    public EnemyAttack enemyAttack;
+    public EnemyState currentState = EnemyState.Patrol;
 
     public Transform[] patrolPoints;
-    private int patrolIndex = 0; //Como vamos somar o index sem um laÁo de repetiÁ„o, criamos uma variavel para ser index do vetor.
+    private int patrolIndex = 0;
 
-    public Transform target; //transform do player
-    public float chaseDistance = 15f; //auto explicativo
-    public float lostTargetTime = 5f; //auto explicativo
-    private Vector3 lastSeenPosition; //auto explicativo
+    public Transform target;
+    public float chaseDistance = 15f;
+    public float lostTargetTime = 5f;
+    private Vector3 lastSeenPosition;
+    public Rigidbody rb;
 
-    private float timerSinceLost = 0f; //variavel de contador.
+    private float timerSinceLost = 0f;
 
-    public float updateSpeed = 0.1f; // usada nos IEnumerator: Funcoes que podem ser pausadas ou retomadas quando quisermos.
-    private WaitForSeconds wait; // variavel para dizer o tempo atÈ pausar, ou o tempo atÈ retomar a funÁ„o, ou atÈ parar ela de vez, etc.
+    public float updateSpeed = 0.1f;
+    private WaitForSeconds wait;
     public PlayerThird player;
 
-    private GameObject zona; // Essa zona È um gameobject dentro do player com um collider chamado "zona". Nos pegamos esse collider para dizer: Se eu estiver dentro dessa zona (se eu vi o player), eu diminuo a velocidade para ele poder fugir. 
-                             //Se eu estiver com ele a vista, e eu n„o estou na zona, vou correr mais para ele n„o fugir. 
-    public NavMeshAgent agent; // auto explicativo
-    private Animator anim; // auto explicativo
+    private GameObject zona;
+    public NavMeshAgent agent;
+    private Animator anim;
 
-    private float viewRadius = 10f; //o quao longe o inimigo enxerga (imagina um circulo, que o inimigo È o ponto central. O raio È o que conseguimos enxergar. 
-    private float viewAngle = 200f; //Angulo de visao. ExplicaÁ„o depois.
-    public LayerMask playerMask; //Layer que sÛ o player tem. necessario pro raycast.
-    public LayerMask obstructionMask; //Se essa layer tiver na frente do player, o inimigo nao enxerga a gente.
+    private float viewRadius = 10f;
+    private float viewAngle = 200f;
+    public LayerMask playerMask;
+    public LayerMask obstructionMask;
 
-    private bool playerInSight = false; // auto explicativo
-    private bool hasReachedLastPosition = false; // auto explicativo
+    private bool playerInSight = false;
+    private bool hasReachedLastPosition = false;
+
+    // ‚ö†Ô∏èÔ∏è ADI√á√ÉO FUNDAMENTAL CONTRA JITTER
+    private float turnSmoothSpeed = 8f; // valor alto para suavidade forte
 
     void Awake()
     {
-        
         agent = GetComponent<NavMeshAgent>();
         player = GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerThird>();
         if (player != null)
         {
-            target = player.transform; // <- garante que target n„o ser· null
+            target = player.transform;
         }
 
         zona = GameObject.FindGameObjectWithTag("Zona");
         anim = GetComponentInChildren<Animator>();
         wait = new WaitForSeconds(updateSpeed);
+        rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
+            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            rb.constraints = RigidbodyConstraints.FreezeRotation;
+        }
+
+        // ‚ö†Ô∏è AJUSTE NAVMESH QUE REMOVE JITTER DE ROTA√á√ÉO
+        agent.updateRotation = false;
     }
 
     void Start()
@@ -63,59 +69,31 @@ public class EnemyBasicMovement : MonoBehaviour
         StartCoroutine(StateMachine());
     }
 
-    private IEnumerator StateMachine() //Basicamente a maquina que organiza as funcoes de perseguir, buscar, e patrulhar.
+    private IEnumerator StateMachine()
     {
         while (enabled)
         {
-            switch (currentState) //Escolha caso. Se eu estiver com o caso Patrol, eu chamo a funÁ„o Patrol. E assim por diante.
+            switch (currentState)
             {
                 case EnemyState.Chase:
-                    if(!enemyAttack.isAttacking)
+                    if (!enemyAttack.isAttacking)
                     {
-                            anim.SetInteger("state", 1);
+                        anim.SetInteger("state", 1);
                     }
                     Chase();
                     break;
-                //case EnemyState.Searching:
-                    //Search();
-                    //break;
             }
             yield return wait;
         }
     }
-    private IEnumerator SearchAroundBeforePatrol() //Ato de buscar o personagem depois de ter perdido ele de vista. Depois de 2 segundos eu volto a patrulhar.
+
+    private IEnumerator SearchAroundBeforePatrol()
     {
-        
         yield return new WaitForSeconds(2f);
         currentState = EnemyState.Patrol;
     }
 
     void Update()
-    {
-        if (enemyAttack.isKnockBack || enemyAttack.isStunned)
-        {
-            if(agent != null && agent.enabled)
-            {
-                agent.isStopped = true;
-            }
-            return;
-        }
-        
-        float distanceToPlayer = Vector3.Distance(transform.position, target.position);
-
-        if (EnemyCanSeePlayer()) //Se eu conseguir ver o player, playerInSight È verdade, e ent„o eu vou persegui-lo. Como estou perseguindo no update, a ultima posiÁ„o do player È igual a posiÁ„o dele, e a atualizaÁ„o funciona.
-        {
-            playerInSight = true;
-            currentState = EnemyState.Chase;
-            timerSinceLost = 0f;
-
-            lastSeenPosition = target.position;
-            hasReachedLastPosition = false; //Nao at  ingi porque supomos que ainda estou perseguindo ele.
-        }
-        
-    }
-
-    void Chase()
     {
         if (enemyAttack.isKnockBack || enemyAttack.isStunned)
         {
@@ -126,27 +104,71 @@ public class EnemyBasicMovement : MonoBehaviour
             return;
         }
 
-        agent.SetDestination(target.position); //Pegamos o player.
-        
+        float distanceToPlayer = Vector3.Distance(transform.position, target.position);
+
+        if (EnemyCanSeePlayer())
+        {
+            playerInSight = true;
+            currentState = EnemyState.Chase;
+            timerSinceLost = 0f;
+
+            lastSeenPosition = target.position;
+            hasReachedLastPosition = false;
+        }
+
+        // ‚ö†Ô∏è ROTATION SMOOTHING DO INIMIGO (Remove jitter visual)
+        if (agent.velocity.sqrMagnitude > 0.1f)
+        {
+            Vector3 dir = agent.velocity.normalized;
+            dir.y = 0;
+
+            if (dir != Vector3.zero)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(dir);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * turnSmoothSpeed);
+            }
+        }
+    }
+
+    void Chase()
+    {
+        if (enemyAttack.isKnockBack || enemyAttack.isStunned || target == null)
+        {
+            if (agent != null && agent.enabled)
+            {
+                agent.isStopped = true;
+            }
+            return;
+        }
+
+        if (!agent.isActiveAndEnabled) return;
+
+        float distanceToCurrentDestination = Vector3.Distance(agent.destination, target.position);
+
+        // S√≥ atualiza destino quando realmente necess√°rio
+        if (distanceToCurrentDestination > 2.0f)
+        {
+            agent.SetDestination(target.position);
+        }
+
         if (IsPlayerInZona())
         {
             agent.speed = player.moveSpeed + 1f;
-
         }
         else
         {
             agent.speed = player.SprintSpeed + 3f;
-
         }
-        if(enemyAttack.isAttacking)
+
+        agent.isStopped = false;
+
+        if (enemyAttack.isAttacking)
         {
-            agent.speed = 0f;
+            agent.speed = Mathf.Min(agent.speed, 2f);
         }
     }
 
- 
-
-    public bool IsPlayerInZona() //A esfera ao redor do inimigo vai pegar todos os colliders ao redor dele. Se tiver um collider com a tag zona, ent„o o player ta na zona. E o metodo pode ser usado em outros cantos.
+    public bool IsPlayerInZona()
     {
         Collider[] colliders = Physics.OverlapSphere(transform.position, 2f);
         foreach (var col in colliders)
@@ -157,26 +179,18 @@ public class EnemyBasicMovement : MonoBehaviour
         return false;
     }
 
-    bool EnemyCanSeePlayer() //Calculamos a direÁ„o do player. Nos normalizamos o vetor porque o raycast sÛ gosta de um vetor para usar como DIRECAO. Ou seja, ele pode bugar se a gente usar um vetor com, sei la, (3, 0 ,4). Pode calcular errado.
-                             //Como queremos sÛ mira, È boa pr·tica usar (1, 1, 1).
+    bool EnemyCanSeePlayer()
     {
-        Vector3 directionToPlayer = (target.position - transform.position).normalized; //Direcao AO player.
-        float distanceToPlayer = Vector3.Distance(transform.position, target.position); //DireÁ„o DO player. 
+        Vector3 directionToPlayer = (target.position - transform.position).normalized;
+        float distanceToPlayer = Vector3.Distance(transform.position, target.position);
 
-        if (distanceToPlayer < viewRadius) //Se a distancia do player for menor que o raio que expliquei l· em cima (se nao viu, È na declaracao dessa variavel viewRadius), vamos calcular o angulo entre o player e o inimigo.
+        if (distanceToPlayer < viewRadius)
         {
-            float angleBetween = Vector3.Angle(transform.forward, directionToPlayer); //Calculamos suando Vector3.Angle.
-            if (angleBetween < viewAngle / 2f)//Porque dividimos pela metade? Pra explicar, o Vector3.Angle retorna um angulo ENTRE DOIS VETORES. Os dois vetores em questao È o forward do INIMIGO, que sempre aponta para frente, e a direÁ„o ao player.
-                                              //Se a gente nao dividir esse valor ao meio, o unity vai entender sem querer que o inimigo tem o dobro de campo de vis„o. Quando a gente divide por 2 um campo de vis„o que È de sei la, 120 graus, estamos
-                                              //dizendo na verdade: O player est· a 60 graus para a minha esquerda, ou 60 graus para a minha direita?
+            float angleBetween = Vector3.Angle(transform.forward, directionToPlayer);
+
+            if (angleBetween < viewAngle / 2f)
             {
-                if (!Physics.Raycast(transform.position + Vector3.up, directionToPlayer, distanceToPlayer, obstructionMask)) //Ai calculamos o raycast. Porque transform.position + vector3.up? Porque geralmente a gente quer calcular o raycast
-                                                                                                                             //(num personagem humanoide) a partir dos olhos dele. E geralmente o transform.position fica no root (entre os pÈs), ou no
-                                                                                                                             //centro do objeto. Assim, o rayscast pode passar por baixo e ver o player mesmo com a gente escondido, por uma parede, uma porta.
-                                                                                                                             //Ai adicionamos Vector3.up para deixar o inicio do raycast na cabecinha do personagem. Uau.
-                                                                                                                             //O "!" antes da linha È para dizer o seguinte: SE o raycast N√O ESTA BATENDO num objeto da layer OBSTRUCTION MASK, entao
-                                                                                                                             //o inimigo CONSEGUE ver a gente. Ou pode ver. Se estivermos longe n„o podemos (acima do valor viewRadius. Ou se estamos fora de
-                                                                                                                             //viewAngle/2).
+                if (!Physics.Raycast(transform.position + Vector3.up, directionToPlayer, distanceToPlayer, obstructionMask))
                 {
                     return true;
                 }
@@ -187,19 +201,17 @@ public class EnemyBasicMovement : MonoBehaviour
 
     public void StopMovement()
     {
-        if(agent != null)
+        if (agent != null)
         {
             agent.isStopped = true;
-            
         }
     }
+
     public void ResumeMovement()
     {
-        if(agent != null && agent.enabled)
+        if (agent != null && agent.enabled)
         {
             agent.isStopped = false;
         }
     }
 }
-
-
